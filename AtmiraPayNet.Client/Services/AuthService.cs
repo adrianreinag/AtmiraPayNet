@@ -16,9 +16,11 @@ namespace AtmiraPayNet.Client.Services
             if (result.IsSuccessStatusCode)
             {
                 var content = await result.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<dynamic>(content);
 
-                return response!.token;
+                var response = JsonConvert.DeserializeObject<dynamic>(content);
+                var token = response!.token;
+
+                return token;
             }
             else
             {
@@ -33,9 +35,11 @@ namespace AtmiraPayNet.Client.Services
             if (result.IsSuccessStatusCode)
             {
                 var content = await result.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<dynamic>(content);
 
-                return response!.token;
+                var response = JsonConvert.DeserializeObject<dynamic>(content);
+                var token = response!.token;
+
+                return token;
             }
             else
             {
