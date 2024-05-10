@@ -1,4 +1,4 @@
-﻿using AtmiraPayNet.Shared;
+﻿using AtmiraPayNet.Shared.Utils;
 
 namespace AtmiraPayNet.Server.Models
 {
