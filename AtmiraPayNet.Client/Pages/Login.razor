@@ -1,0 +1,46 @@
+﻿@page "/login"
+
+@using AtmiraPayNet.Client.Services.Interfaces
+@using AtmiraPayNet.Shared
+
+@inject IAuthService userService;
+@inject ILocalStorageService localStorageService;
+@inject NavigationManager navigation;
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<EditForm Model="login" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre de usuario</label>
+        <InputText class="form-control" @bind-Value="login.UserName"></InputText>
+        <ValidationMessage For="@(() => login.UserName)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <InputText class="form-control" @bind-Value="login.Password"></InputText>
+        <ValidationMessage For="@(() => login.Password)"></ValidationMessage>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
+
+    <a class="btn btn-warning" href="logins">Volver a logins</a>
+</EditForm>
+
+@code {
+    LoginDTO login = new LoginDTO();
+
+    private async Task OnValidSubmit()
+    {
+        var token = await userService.Login(login);
+        if (!string.IsNullOrEmpty(token))
+        {
+            await localStorageService.Set("token", token);
+            navigation.NavigateTo("/home");
+        }
+    }
+}
