@@ -8,7 +8,7 @@ namespace AtmiraPayNet.Server.Models
         required public Guid Id { get; set; }
 
         // Relationships
-        required public Guid UserId { get; set; }
+        required public string UserId { get; set; }
         public User? User { get; set; }
 
         required public Guid SourceAccountId { get; set; }
