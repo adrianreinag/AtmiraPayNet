@@ -1,11 +1,10 @@
 ﻿using AtmiraPayNet.Shared.DTO;
-using AtmiraPayNet.Shared.Utils;
 
 namespace AtmiraPayNet.Server.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<Response<string>> Register(RegisterDTO request);
-        Task<Response<string>> Login(LoginDTO request);
+        Task<ResponseDTO<string>> Register(RegisterDTO request);
+        Task<ResponseDTO<string>> Login(LoginDTO request);
     }
 }

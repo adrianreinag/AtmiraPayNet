@@ -8,7 +8,7 @@ namespace AtmiraPayNet.Server.Models
         required public List<Payment> Payments { get; set; }
 
         // Properties
-        required public string Fullname { get; set; }
+        required public string FullName { get; set; }
         required public DateOnly DateOfBirth { get; set; }
     }
 }

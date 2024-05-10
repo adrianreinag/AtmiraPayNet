@@ -1,7 +1,6 @@
 ﻿using AtmiraPayNet.Server.Models;
 using AtmiraPayNet.Server.Services.Interfaces;
 using AtmiraPayNet.Shared.DTO;
-using AtmiraPayNet.Shared.Utils;
 using Microsoft.AspNetCore.Identity;
 
 namespace AtmiraPayNet.Server.Services
@@ -11,25 +10,25 @@ namespace AtmiraPayNet.Server.Services
         private readonly ITokenService _tokenService = tokenService;
         private readonly UserManager<User> _userManager = userManager;
 
-        public async Task<Response<string>> Register(RegisterDTO request)
+        public async Task<ResponseDTO<string>> Register(RegisterDTO request)
         {
             try
             {
-                var user = await _userManager.FindByNameAsync(request.UserName!);
+                User? user = await _userManager.FindByNameAsync(request.UserName!);
 
                 if (user != null)
                 {
-                    return new Response<string>
+                    return new ResponseDTO<string>
                     {
                         StatusCode = StatusCodes.Status409Conflict,
                         Message = "El nombre de usuario ya está en uso."
                     };
                 }
 
-                var newUser = new User
+                User newUser = new()
                 {
                     UserName = request.UserName!,
-                    Fullname = request.Fullname!,
+                    FullName = request.Fullname!,
                     Payments = [],
                     DateOfBirth = (DateOnly)request.DateOfBirth!
                 };
@@ -38,7 +37,7 @@ namespace AtmiraPayNet.Server.Services
 
                 string token = _tokenService.CreateToken(newUser);
 
-                return new Response<string>
+                return new ResponseDTO<string>
                 {
                     StatusCode = StatusCodes.Status201Created,
                     Value = token,
@@ -47,7 +46,7 @@ namespace AtmiraPayNet.Server.Services
             }
             catch (Exception e)
             {
-                return new Response<string>
+                return new ResponseDTO<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = e.Message
@@ -55,15 +54,15 @@ namespace AtmiraPayNet.Server.Services
             }
         }
 
-        public async Task<Response<string>> Login(LoginDTO request)
+        public async Task<ResponseDTO<string>> Login(LoginDTO request)
         {
             try
             {
-                var user = await _userManager.FindByNameAsync(request.UserName!);
+                User? user = await _userManager.FindByNameAsync(request.UserName!);
 
                 if (user == null || await _userManager.CheckPasswordAsync(user, request.Password!) == false)
                 {
-                    return new Response<string>
+                    return new ResponseDTO<string>
                     {
                         StatusCode = StatusCodes.Status400BadRequest,
                         Message = "Correo electrónico o contraseña incorrectos."
@@ -73,7 +72,7 @@ namespace AtmiraPayNet.Server.Services
                 {
                     string token = _tokenService.CreateToken(user);
 
-                    return new Response<string>
+                    return new ResponseDTO<string>
                     {
                         StatusCode = StatusCodes.Status200OK,
                         Value = token,
@@ -83,7 +82,7 @@ namespace AtmiraPayNet.Server.Services
             }
             catch (Exception e)
             {
-                return new Response<string>
+                return new ResponseDTO<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = e.Message

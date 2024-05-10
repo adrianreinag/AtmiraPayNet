@@ -10,6 +10,6 @@
         public Payment? Payment { get; set; }
 
         // Properties
-        required public string LetterPDF { get; set; }
+        required public string PDF { get; set; }
     }
 }

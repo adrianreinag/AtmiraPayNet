@@ -20,6 +20,7 @@ namespace AtmiraPayNet.Server.Models
         public Guid? IntermediaryAccountId { get; set; }
         public BankAccount? IntermediaryAccount { get; set; }
 
+        public Guid? PaymentLetterId { get; set; }
         public PaymentLetter? PaymentLetter { get; set; }
 
         // Properties

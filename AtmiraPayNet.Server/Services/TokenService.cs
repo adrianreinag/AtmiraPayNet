@@ -33,27 +33,19 @@ namespace AtmiraPayNet.Server.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public Guid GetCurrentUserId()
+        public string? GetCurrentUserId()
         {
             var authorizationHeader = _httpContextAccessor.HttpContext!.Request.Headers.Authorization;
 
-            if (string.IsNullOrEmpty(authorizationHeader))
-            {
-                return Guid.Empty;
-            }
+            string? token = string.IsNullOrEmpty(authorizationHeader)
+                ? null
+                : authorizationHeader.ToString().Split(" ")[1];
 
-            var token = authorizationHeader.ToString().Split(" ")[1];
+            Claim? userIdClaim = string.IsNullOrEmpty(token)
+                ? null
+                : new JwtSecurityTokenHandler().ReadJwtToken(token).Claims.FirstOrDefault(c => c.Type == "nameid");
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenClaims = tokenHandler.ReadJwtToken(token);
-
-            var userIdClaim = tokenClaims.Claims.FirstOrDefault(c => c.Type == "nameid");
-            if (userIdClaim == null)
-            {
-                return Guid.Empty;
-            }
-
-            return new Guid(userIdClaim.Value);
+            return userIdClaim?.Value;
         }
     }
 }
