@@ -43,7 +43,7 @@ namespace AtmiraPayNet.Server.Services
                     IntermediaryAccountId = responseValidation.Value.Item3?.Id,
                     Amount = request.Amount,
                     Status = request.Status,
-                    Address = new Address(request.Number, request.Street, request.SourceBankCountry, request.PostalCode)
+                    Address = new Address(request.Number!, request.Street!, request.SourceBankCountry!, request.PostalCode!)
                 };
 
                 var createdPayment = _context.Payments.Add(payment).Entity;
@@ -70,7 +70,7 @@ namespace AtmiraPayNet.Server.Services
             }
         }
 
-        public async Task<ResponseDTO<Payment>> UpdatePayment(PaymentDTO request)
+        public async Task<ResponseDTO<Payment>> UpdatePayment(Guid id, PaymentDTO request)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace AtmiraPayNet.Server.Services
                     };
                 }
 
-                Guid? paymentId = request.Id;
+                Guid? paymentId = id;
 
                 if (paymentId == null)
                 {
@@ -130,7 +130,7 @@ namespace AtmiraPayNet.Server.Services
                 payment.IntermediaryAccountId = responseValidation.Value.Item3?.Id;
                 payment.Amount = request.Amount;
                 payment.Status = request.Status;
-                payment.Address = new Address(request.Number, request.Street, request.SourceBankCountry, request.PostalCode);
+                payment.Address = new Address(request.Number!, request.Street!, request.SourceBankCountry!, request.PostalCode!);
 
                 var updatedPayment = _context.Payments.Update(payment).Entity;
                 await _context.SaveChangesAsync();
@@ -167,7 +167,7 @@ namespace AtmiraPayNet.Server.Services
                 };
             }
 
-            BankAccount? sourceAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.SourceIBAN));
+            BankAccount? sourceAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.SourceIBAN!));
 
             if (sourceAccount == null)
             {
@@ -178,7 +178,7 @@ namespace AtmiraPayNet.Server.Services
                 };
             }
 
-            BankAccount? destinationAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.DestinationIBAN));
+            BankAccount? destinationAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.DestinationIBAN!));
 
             if (destinationAccount == null)
             {
@@ -325,7 +325,6 @@ namespace AtmiraPayNet.Server.Services
 
                 PaymentDTO paymentDTO = new()
                 {
-                    Id = payment.Id,
                     Amount = payment.Amount,
                     SourceIBAN = payment.SourceAccount!.IBAN.Value,
                     SourceBankName = payment.SourceAccount.Bank!.Name,
@@ -397,7 +396,7 @@ namespace AtmiraPayNet.Server.Services
                         };
                     }
 
-                    var paymentDTO = new SimplePaymentDTO
+                    paymentDTOs.Add(new SimplePaymentDTO
                     {
                         Id = payment.Id,
                         SourceBankName = payment.SourceAccount!.Bank!.Name,
@@ -405,9 +404,7 @@ namespace AtmiraPayNet.Server.Services
                         Amount = payment.Amount,
                         Currency = responseCurrency.Value!,
                         Status = payment.Status
-                    };
-
-                    paymentDTOs.Add(paymentDTO);
+                    });
                 }
 
                 return new ResponseDTO<List<SimplePaymentDTO>>

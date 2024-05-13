@@ -1,6 +1,5 @@
 ﻿using AtmiraPayNet.Server.Services.Interfaces;
 using AtmiraPayNet.Shared.DTO;
-using AtmiraPayNet.Shared.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtmiraPayNet.Server.Controllers
@@ -16,22 +15,22 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _paymentService.CreatePayment(request);
 
-            if (response.StatusCode == StatusCodes.Status200OK && request.Status == Status.Generated)
+            if (response.StatusCode == 201)
             {
-                return StatusCode(response.StatusCode, new { response.Message, pdf = response.Value!.PaymentLetter!.PDF });
+                return StatusCode(response.StatusCode, response.Value);
             }
 
             return StatusCode(response.StatusCode, new { response.Message });
         }
 
         [HttpPut]
-        async public Task<IActionResult> UpdatePayment([FromBody] PaymentDTO request)
+        async public Task<IActionResult> UpdatePayment([FromQuery] Guid id, [FromBody] PaymentDTO request)
         {
-            var response = await _paymentService.UpdatePayment(request);
+            var response = await _paymentService.UpdatePayment(id, request);
 
-            if (response.StatusCode == StatusCodes.Status200OK && request.Status == Status.Generated)
+            if (response.StatusCode == 200)
             {
-                return StatusCode(response.StatusCode, new { response.Message, pdf = response.Value!.PaymentLetter!.PDF });
+                return StatusCode(response.StatusCode, response.Value);
             }
 
             return StatusCode(response.StatusCode, new { response.Message });
@@ -42,7 +41,12 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _paymentService.GetPaymentById(id);
 
-            return StatusCode(response.StatusCode, new { response.Message, response.Value });
+            if (response.StatusCode == 200)
+            {
+                return StatusCode(response.StatusCode, response.Value);
+            }
+
+            return StatusCode(response.StatusCode, new { response.Message });
         }
 
         [HttpGet]
@@ -51,7 +55,12 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _paymentService.GetPaymentList();
 
-            return StatusCode(response.StatusCode, new { response.Message, response.Value });
+            if (response.StatusCode == 200)
+            {
+                return StatusCode(response.StatusCode, response.Value);
+            }
+
+            return StatusCode(response.StatusCode, new { response.Message });
         }
     }
 }

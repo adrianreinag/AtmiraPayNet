@@ -2,8 +2,8 @@
 {
     public class ResponseDTO<T>
     {
-        public required int StatusCode { get; set; }
+        required public int StatusCode { get; set; }
         public T? Value { get; set; }
-        public string? Message { get; set; }
+        required public string Message { get; set; }
     }
 }

@@ -1,0 +1,82 @@
+﻿@page "/payments"
+
+@using AtmiraPayNet.Client.Services.Interfaces
+@using AtmiraPayNet.Shared.DTO
+@using AtmiraPayNet.Shared.Utils
+
+@inject IPaymentService paymentService;
+
+<h3>Payments</h3>
+
+<a class="btn btn-success btn-sm mb-3" href="payment">Create payment</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Source Bank</th>
+            <th>Destination Bank</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (simplePaymentList == null)
+        {
+            <tr>
+                <td colspan="6" align="center">
+                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" />
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in simplePaymentList)
+            {
+                <tr>
+                    <td>@item.SourceBankName</td>
+                    <td>@item.DestinationBankName</td>
+                    <td>@item.Amount</td>
+                    <td>@item.Currency.Symbol (@item.Currency.Name)</td>
+                    <td>@item.Status</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="payment/@item.Id">
+                            @if (item.Status == Status.Generated)
+                            {
+                                <text>View</text>
+                            }
+                            else
+                            {
+                                <text>Edit</text>
+                            }
+                        </a>
+                        <button class="btn btn-secondary btn-sm" @onclick="(() => DownloadPDF(item.Id))">
+                            Download PDF
+                        </button>
+                    </td>
+
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<SimplePaymentDTO>? simplePaymentList = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        simplePaymentList = await paymentService.GetListPayment();
+    }
+
+    private async Task DownloadPDF(Guid id)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(2));
+
+        // Aquí colocarías el código real para la descarga del PDF
+        // Por ejemplo:
+        // var pdfBytes = await _pdfService.DownloadPdfAsync(id);
+        // Luego puedes procesar los bytes del PDF como desees
+    }
+}

@@ -16,7 +16,7 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _userService.Register(request);
 
-            return StatusCode(response.StatusCode, new { response.Message, token = response.Value });
+            return StatusCode(response.StatusCode, new { token = response.Value, response.Message });
         }
 
         [HttpPost]
@@ -25,7 +25,7 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _userService.Login(request);
 
-            return StatusCode(response.StatusCode, new { response.Message, token=response.Value });
+            return StatusCode(response.StatusCode, new { token = response.Value, response.Message });
         }
     }
 }

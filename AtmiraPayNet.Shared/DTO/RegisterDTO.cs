@@ -14,6 +14,7 @@ namespace AtmiraPayNet.Shared.DTO
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$", ErrorMessage = "La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial")]
         public string? Password { get; set; }
 
+        [Required(ErrorMessage = "La confirmación de la contraseña es requerida")]
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar Contraseña")]
         [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
@@ -26,32 +27,7 @@ namespace AtmiraPayNet.Shared.DTO
         [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Nacimiento")]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        //[ValidateAge(ErrorMessage = "La edad debe estar entre 18 y 80 años")]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly? DateOfBirth { get; set; }
     }
-
-    //public class ValidateAgeAttribute : ValidationAttribute
-    //{
-    //    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-    //    {
-    //        if (value is DateTime dateOfBirth)
-    //        {
-    //            var today = DateTime.Today;
-    //            var age = today.Year - dateOfBirth.Year;
-
-    //            if (dateOfBirth > today.AddYears(-age))
-    //            {
-    //                age--;
-    //            }
-
-    //            if (age < 18 || age > 80)
-    //            {
-    //                return new ValidationResult(ErrorMessage);
-    //            }
-    //        }
-
-    //        return ValidationResult.Success;
-    //    }
-    //}
 }

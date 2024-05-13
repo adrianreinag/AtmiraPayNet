@@ -1,0 +1,146 @@
+﻿@page "/payment";
+@page "/payment/{id:guid}";
+
+@using AtmiraPayNet.Shared.DTO
+@using AtmiraPayNet.Client.Services.Interfaces
+
+@inject IPaymentService paymentService;
+@inject IRESTCountriesService countriesService;
+
+<PageTitle>Payment</PageTitle>
+
+<h1>Payment</h1>
+
+<EditForm Model="payment" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Cuenta de origen</label>
+        <InputText class="form-control" @bind-Value="payment.SourceIBAN"></InputText>
+        <ValidationMessage For="@(() => payment.SourceIBAN)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre del banco de origen</label>
+        <InputText class="form-control" @bind-Value="payment.SourceBankName"></InputText>
+        <ValidationMessage For="@(() => payment.SourceBankName)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pais del banco de origen</label>
+        <InputSelect class="form-control" @bind-Value="payment.SourceBankCountry">
+            @foreach (var country in countryList)
+            {
+                <option value="@country.Name.Common">@country.Name.Common</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => payment.SourceBankCountry)"></ValidationMessage>
+    </div>
+
+    @* Este campo no será editable, simplemente mostrará la divisa del SourceBankCountry *@
+    <div>
+    <label class="form-label">Divisa</label>
+    <InputText class="form-control"></InputText>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Código postal</label>
+        <InputText class="form-control" @bind-Value="payment.PostalCode"></InputText>
+        <ValidationMessage For="@(() => payment.PostalCode)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Calle</label>
+        <InputText class="form-control" @bind-Value="payment.Street"></InputText>
+        <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Número</label>
+        <InputNumber class="form-control" @bind-Value="payment.Number"></InputNumber>
+        <ValidationMessage For="@(() => payment.Number)"></ValidationMessage>
+    </div>
+
+    <label class="form-label">Cantidad</label>
+        <InputText class="form-control" @bind-Value="payment.Amount" />
+        <ValidationMessage For="@(() => payment.Amount)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Cuenta de destino</label>
+        <InputText class="form-control" @bind-Value="payment.DestinationIBAN"></InputText>
+        <ValidationMessage For="@(() => payment.DestinationIBAN)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre del banco de destion</label>
+        <InputText class="form-control" @bind-Value="payment.DestinationBankName"></InputText>
+        <ValidationMessage For="@(() => payment.DestinationBankName)"></ValidationMessage>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pais del banco de destino</label>
+        <InputText class="form-control" @bind-Value="payment.DestinationBankCountry"></InputText>
+        <ValidationMessage For="@(() => payment.DestinationBankCountry)"></ValidationMessage>
+    </div>
+
+    @* Este campo no será editable, simplemente mostrará la divisa del DestinationBankCountry *@
+    <div>
+        <label class="form-label">Divisa</label>
+        <InputText class="form-control"></InputText>
+    </div>
+
+    <div>
+        <label class="form-label">Cuenta intermedia</label>
+        <InputText class="form-control" @bind-Value="payment.IntermediaryIBAN"></InputText>
+        <ValidationMessage For="@(() => payment.IntermediaryIBAN)"></ValidationMessage>
+    </div>
+
+    <div>
+        <label class="form-label">Nombre del banco intermedio</label>
+        <InputText class="form-control" @bind-Value="payment.IntermediaryBankName"></InputText>
+        <ValidationMessage For="@(() => payment.IntermediaryBankName)"></ValidationMessage>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Generar pago</button>
+
+    <a class="btn btn-warning" href="logins">Volver a logins</a>
+</EditForm>
+
+@code {
+    [Parameter] public Guid id { get; set; } = Guid.Empty;
+
+    string title = string.Empty;
+    string textBtn = string.Empty;
+
+    PaymentDTO payment = new PaymentDTO();
+    List<CountryDTO> countryList = new List<CountryDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id != Guid.Empty)
+        {
+            payment = await paymentService.GetPaymentById(id);
+            title = "Update payment";
+            textBtn = "Update";
+        }
+        else
+        {
+            title = "Create payment";
+            textBtn = "Create";
+        }
+
+        countryList = await countriesService.GetCountryList();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        if (id != Guid.Empty)
+        {
+            await paymentService.UpdatePayment(id, payment);
+        }
+        else
+        {
+            await paymentService.CreatePayment(payment);
+        }
+    }
+}

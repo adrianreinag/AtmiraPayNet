@@ -1,29 +1,85 @@
 ﻿using AtmiraPayNet.Client.Services.Interfaces;
-using AtmiraPayNet.Shared;
 using AtmiraPayNet.Shared.DTO;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace AtmiraPayNet.Client.Services
 {
-    public class PaymentService : IPaymentService
+    public class PaymentService(HttpClient http, ILocalStorageService localStorageService) : IPaymentService
     {
-        public Task<bool> CreatePayment(PaymentDTO request)
+        private readonly HttpClient _http = http;
+        private readonly ILocalStorageService _localStorageService = localStorageService;
+
+        public async Task<bool> CreatePayment(PaymentDTO request)
         {
-            throw new NotImplementedException();
+            var result = await _http.PostAsJsonAsync("api/payment", request);
+
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        public Task<List<SimplePaymentDTO>> GetListPayment()
+        public async Task<bool> UpdatePayment(Guid id, PaymentDTO request)
         {
-            throw new NotImplementedException();
+            var result = await _http.PutAsJsonAsync($"api/payment?id={id}", request);
+
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        public Task<PaymentDTO> GetPayment(Guid id)
+        public async Task<List<SimplePaymentDTO>> GetListPayment()
         {
-            throw new NotImplementedException();
+            var token = await _localStorageService.Get("token") ?? throw new Exception("Token not found");
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.GetAsync("api/payment/all");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(response.ReasonPhrase);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var paymentList = JsonConvert.DeserializeObject<List<SimplePaymentDTO>>(content);
+
+                return paymentList ?? [];
+            }
         }
 
-        public Task<bool> UpdatePayment(PaymentDTO request)
+        public async Task<PaymentDTO> GetPaymentById(Guid id)
         {
-            throw new NotImplementedException();
+            var token = await _localStorageService.Get("token") ?? throw new Exception("Token not found");
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.GetAsync($"api/payment?id={id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(response.ReasonPhrase);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var payment= JsonConvert.DeserializeObject<PaymentDTO>(content);
+
+                return payment!;
+            }
         }
     }
 }
