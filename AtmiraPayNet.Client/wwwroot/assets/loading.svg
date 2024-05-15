@@ -1,0 +1,95 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 15">
+	<defs>
+		<style>
+			.wave1 {
+			animation: waveAnimation1 2s linear infinite;
+			}
+
+			.wave2 {
+			animation: waveAnimation2 2s linear infinite;
+			}
+
+			.wave3 {
+			animation: waveAnimation3 2s linear infinite;
+			}
+
+			.wave4 {
+			animation: waveAnimation4 2s linear infinite;
+			}
+
+			@keyframes waveAnimation1 {
+			0% {
+			transform: scale(1);
+			}
+			50% {
+			transform: scale(1.5);
+			}
+			100% {
+			transform: scale(1);
+			}
+			}
+
+			@keyframes waveAnimation2 {
+			0% {
+			transform: scale(1.25);
+			}
+			25% {
+			transform: scale(1);
+			}
+			50% {
+			transform: scale(1.25);
+			}
+			75% {
+			transform: scale(1.5);
+			}
+			100% {
+			transform: scale(1.25);
+			}
+			}
+
+			@keyframes waveAnimation3 {
+			0% {
+			transform: scale(1.5);
+			}
+			50% {
+			transform: scale(1);
+			}
+			100% {
+			transform: scale(1.5);
+			}
+			}
+
+			@keyframes waveAnimation4 {
+			0% {
+			transform: scale(1.25);
+			}
+			25% {
+			transform: scale(1.5);
+			}
+			50% {
+			transform: scale(1.25);
+			}
+			75% {
+			transform: scale(1);
+			}
+			100% {
+			transform: scale(1.25);
+			}
+			}
+		</style>
+	</defs>
+	<g data-idx="1">
+		<g transform="matrix(1,0,0,1,7.5,7.5)" data-idx="2">
+			<circle fill="#de1d7a" r="5" cy="0" cx="0" data-idx="3" class="wave1"></circle>
+		</g>
+		<g transform="matrix(1,0,0,1,27.5,7.5)" data-idx="5">
+			<circle fill="#de1d7a" r="5" cy="0" cx="0" data-idx="6" class="wave2"></circle>
+		</g>
+		<g transform="matrix(1,0,0,1,47.5,7.5)" data-idx="8">
+			<circle fill="#de1d7a" r="5" cy="0" cx="0" data-idx="9" class="wave3"></circle>
+		</g>
+		<g transform="matrix(1,0,0,1,67.5,7.5)" data-idx="11">
+			<circle fill="#de1d7a" r="5" cy="0" cx="0" data-idx="12" class="wave4"></circle>
+		</g>
+	</g>
+</svg>

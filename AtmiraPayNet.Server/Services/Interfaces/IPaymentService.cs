@@ -1,5 +1,4 @@
 ﻿using AtmiraPayNet.Server.Models;
-using AtmiraPayNet.Shared;
 using AtmiraPayNet.Shared.DTO;
 
 namespace AtmiraPayNet.Server.Services.Interfaces
@@ -10,5 +9,6 @@ namespace AtmiraPayNet.Server.Services.Interfaces
         Task<ResponseDTO<Payment>> UpdatePayment(Guid id, PaymentDTO request);
         Task<ResponseDTO<PaymentDTO>> GetPaymentById(Guid id);
         Task<ResponseDTO<List<SimplePaymentDTO>>> GetPaymentList();
+        Task<ResponseDTO<string>> GetPaymentPDF(Guid id);
     }
 }

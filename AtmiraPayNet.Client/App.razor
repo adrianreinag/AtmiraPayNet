@@ -1,12 +1,47 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
+        <CascadingAuthenticationState>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </CascadingAuthenticationState>
     </NotFound>
 </Router>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationStateTask != null)
+        {
+            var authState = await authenticationStateTask;
+
+            if (authState != null)
+            {
+                var user = authState.User;
+
+                if (user.Identity != null && user.Identity.IsAuthenticated)
+                {
+                    Console.WriteLine($"User {user.Identity.Name} is authenticated");
+                }
+                else
+                {
+                    Console.WriteLine("User is not authenticated");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Authentication state is null");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Authentication state task is null");
+        }
+    }
+
+}

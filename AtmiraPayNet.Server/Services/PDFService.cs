@@ -1,6 +1,7 @@
-﻿using AtmiraPayNet.Server.Models;
-using AtmiraPayNet.Server.Services.Interfaces;
+﻿using AtmiraPayNet.Server.Services.Interfaces;
+using AtmiraPayNet.Shared.DTO;
 using iText.Html2pdf;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AtmiraPayNet.Server.Services
 {

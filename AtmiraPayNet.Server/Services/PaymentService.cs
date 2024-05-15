@@ -4,9 +4,6 @@ using AtmiraPayNet.Server.Services.Interfaces;
 using AtmiraPayNet.Shared.DTO;
 using AtmiraPayNet.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Http;
-using System;
-using Newtonsoft.Json;
 
 namespace AtmiraPayNet.Server.Services
 {
@@ -383,18 +380,35 @@ namespace AtmiraPayNet.Server.Services
 
                 var paymentDTOs = new List<SimplePaymentDTO>();
 
+                Dictionary<string, CurrencyDTO> currencies = [];
+
                 foreach (var payment in payments)
                 {
-                    var responseCurrency = await _restCountriesService.GetCurrencyByCountryName(payment.SourceAccount!.Bank!.CountryName);
 
-                    if (responseCurrency.StatusCode != StatusCodes.Status200OK)
+                    CurrencyDTO? currencyDTO = null;
+
+                    if (!currencies.TryGetValue(payment.SourceAccount!.Bank!.CountryName, out CurrencyDTO? value))
                     {
-                        return new ResponseDTO<List<SimplePaymentDTO>>
+                        var responseCurrency = await _restCountriesService.GetCurrencyByCountryName(payment.SourceAccount!.Bank!.CountryName);
+
+                        if (responseCurrency.StatusCode != StatusCodes.Status200OK)
                         {
-                            StatusCode = responseCurrency.StatusCode,
-                            Message = responseCurrency.Message
-                        };
+                            return new ResponseDTO<List<SimplePaymentDTO>>
+                            {
+                                StatusCode = responseCurrency.StatusCode,
+                                Message = responseCurrency.Message
+                            };
+                        }
+
+                        currencyDTO = responseCurrency.Value!;
+
+                        currencies.Add(payment.SourceAccount!.Bank!.CountryName, currencyDTO);
                     }
+                    else
+                    {
+                        currencyDTO = value;
+                    }
+
 
                     paymentDTOs.Add(new SimplePaymentDTO
                     {
@@ -402,7 +416,7 @@ namespace AtmiraPayNet.Server.Services
                         SourceBankName = payment.SourceAccount!.Bank!.Name,
                         DestinationBankName = payment.DestinationAccount!.Bank!.Name,
                         Amount = payment.Amount,
-                        Currency = responseCurrency.Value!,
+                        Currency = currencyDTO,
                         Status = payment.Status
                     });
                 }
@@ -422,6 +436,27 @@ namespace AtmiraPayNet.Server.Services
                     Message = e.Message
                 };
             }
+        }
+
+        public Task<ResponseDTO<string>> GetPaymentPDF(Guid id)
+        {
+            var payment = _context.Payments.Include(p => p.PaymentLetter).FirstOrDefault(p => p.Id == id) ?? throw new ArgumentException("El pago no existe");
+
+            if (payment.PaymentLetter == null)
+            {
+                return Task.FromResult(new ResponseDTO<string>
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = "No se ha generado la carta de pago"
+                });
+            }
+
+            return Task.FromResult(new ResponseDTO<string>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Carta de pago encontrada",
+                Value = payment.PaymentLetter.PDF
+            });
         }
     }
 }

@@ -1,15 +1,22 @@
 ﻿using AtmiraPayNet.Client.Services.Interfaces;
+using AtmiraPayNet.Client.Utility;
 using AtmiraPayNet.Shared.DTO;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AtmiraPayNet.Client.Services
 {
-    public class AuthService(HttpClient http) : IAuthService
+    public class AuthService(HttpClient http, ILocalStorageService localStorageService, AuthenticationStateProvider authenticationStateProvider) : IAuthService
     {
         private readonly HttpClient _http = http;
+        private readonly ILocalStorageService _localStorageService = localStorageService;
+        private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
 
-        public async Task<string?> Register(RegisterDTO request)
+        public async Task<bool> Register(RegisterDTO request)
         {
             var result = await _http.PostAsJsonAsync($"/api/auth/register", request);
 
@@ -20,15 +27,19 @@ namespace AtmiraPayNet.Client.Services
                 var response = JsonConvert.DeserializeObject<dynamic>(content);
                 var token = response!.token;
 
-                return token;
+                await _localStorageService.SetItemAsync("token", token);
+                ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(token);
+                _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                return true;
             }
             else
             {
-                return null;
+                return false;
             }
         }
 
-        public async Task<string?> Login(LoginDTO request)
+        public async Task<bool> Login(LoginDTO request)
         {
             var result = await _http.PostAsJsonAsync($"/api/auth/login", request);
 
@@ -36,15 +47,32 @@ namespace AtmiraPayNet.Client.Services
             {
                 var content = await result.Content.ReadAsStringAsync();
 
-                var response = JsonConvert.DeserializeObject<dynamic>(content);
-                var token = response!.token;
+                var response = JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
 
-                return token;
+                string? token = response?["token"];
+
+                if (token == null)
+                {
+                    return false;
+                }
+
+                await _localStorageService.SetItemAsync("token", token);
+                ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(token);
+                _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                return true;
             }
             else
             {
-                return null;
+                return false;
             }
+        }
+
+        public async Task Logout()
+        {
+            await _localStorageService.RemoveItemAsync("token");
+            ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
+            _http.DefaultRequestHeaders.Authorization = null;
         }
     }
 }

@@ -5,43 +5,49 @@
 @using AtmiraPayNet.Shared.DTO
 
 @inject IAuthService userService;
-@inject ILocalStorageService localStorageService;
 @inject NavigationManager navigation;
+
+<link rel="stylesheet" href="css/access.css" />
 
 <PageTitle>Login</PageTitle>
 
-<h1>Login</h1>
+<div class="access-page">
+    <div class="access-form login-form">
+        <h1 class="title">Inicia sesión</h1>
+        <EditForm Model="login" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="row">
 
-<EditForm Model="login" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="col-12">
 
-    <div class="mb-3">
-        <label class="form-label">Nombre de usuario</label>
-        <InputText class="form-control" @bind-Value="login.UserName"></InputText>
-        <ValidationMessage For="@(() => login.UserName)"></ValidationMessage>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de usuario</label>
+                        <InputText class="form-control" @bind-Value="login.UserName"></InputText>
+                        <ValidationMessage For="@(() => login.UserName)"></ValidationMessage>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <InputText class="form-control" @bind-Value="login.Password" type="password"></InputText>
+                        <ValidationMessage For="@(() => login.Password)"></ValidationMessage>
+                    </div>
+                </div>
+
+            </div>
+            <button class="btn" type="submit">Iniciar Sesión</button>
+            <a class="text-btn" href="register">Crear cuenta</a>
+        </EditForm>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Contraseña</label>
-        <InputText class="form-control" @bind-Value="login.Password"></InputText>
-        <ValidationMessage For="@(() => login.Password)"></ValidationMessage>
-    </div>
-
-    <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
-
-    <a class="btn btn-warning" href="logins">Volver a logins</a>
-</EditForm>
+</div>
 
 @code {
     LoginDTO login = new LoginDTO();
 
     private async Task OnValidSubmit()
     {
-        var token = await userService.Login(login);
-        if (!string.IsNullOrEmpty(token))
+        if (await userService.Login(login))
         {
-            await localStorageService.Set("token", token);
-            navigation.NavigateTo("/home");
+            navigation.NavigateTo("");
         }
     }
 }

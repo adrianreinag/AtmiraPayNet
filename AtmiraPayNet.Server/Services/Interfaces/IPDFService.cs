@@ -1,6 +1,4 @@
-﻿using AtmiraPayNet.Server.Models;
-
-namespace AtmiraPayNet.Server.Services.Interfaces
+﻿namespace AtmiraPayNet.Server.Services.Interfaces
 {
     public interface IPDFService
     {

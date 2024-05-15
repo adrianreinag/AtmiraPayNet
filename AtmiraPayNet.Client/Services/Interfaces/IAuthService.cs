@@ -4,7 +4,8 @@ namespace AtmiraPayNet.Client.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<string?> Register(RegisterDTO request);
-        Task<string?> Login(LoginDTO request);
+        Task<bool> Register(RegisterDTO request);
+        Task<bool> Login(LoginDTO request);
+        Task Logout();
     }
 }

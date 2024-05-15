@@ -1,0 +1,25 @@
+﻿@using System.Text.RegularExpressions
+@inherits InputText
+
+<input type="text" class="form-control" @bind="@CurrentValue" @attributes="AdditionalAttributes" @oninput="FormatIBAN" readonly="@(!EditMode)" />
+
+@code {
+    [Parameter]
+    public bool EditMode { get; set; }
+
+    private void FormatIBAN(ChangeEventArgs e)
+    {
+        string iban = e.Value?.ToString() ?? "";
+
+        iban = iban.Replace(" ", "").Replace("-", "");
+
+        if (iban.Length > 4)
+        {
+            int length = iban.Length;
+            iban = Regex.Replace(iban.Substring(0, length - 4), ".{4}", "$0 ") + iban.Substring(length - 4);
+        }
+
+        CurrentValue = iban;
+    }
+
+}

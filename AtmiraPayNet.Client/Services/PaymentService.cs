@@ -1,16 +1,20 @@
 ﻿using AtmiraPayNet.Client.Services.Interfaces;
 using AtmiraPayNet.Shared.DTO;
-using Microsoft.AspNetCore.Http;
+using Blazored.LocalStorage;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
+
 namespace AtmiraPayNet.Client.Services
 {
-    public class PaymentService(HttpClient http, ILocalStorageService localStorageService) : IPaymentService
+    public class PaymentService(HttpClient http, ILocalStorageService localStorageService, IJSRuntime jsRuntime) : IPaymentService
     {
         private readonly HttpClient _http = http;
         private readonly ILocalStorageService _localStorageService = localStorageService;
+        private readonly IJSRuntime _jsRuntime = jsRuntime;
+
 
         public async Task<bool> CreatePayment(PaymentDTO request)
         {
@@ -40,9 +44,9 @@ namespace AtmiraPayNet.Client.Services
             }
         }
 
-        public async Task<List<SimplePaymentDTO>> GetListPayment()
+        public async Task<List<SimplePaymentDTO>> GetPaymentList()
         {
-            var token = await _localStorageService.Get("token") ?? throw new Exception("Token not found");
+            var token = await _localStorageService.GetItemAsync<string>("token") ?? throw new Exception("Token not found");
 
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -63,7 +67,7 @@ namespace AtmiraPayNet.Client.Services
 
         public async Task<PaymentDTO> GetPaymentById(Guid id)
         {
-            var token = await _localStorageService.Get("token") ?? throw new Exception("Token not found");
+            var token = await _localStorageService.GetItemAsync<string>("token") ?? throw new Exception("Token not found");
 
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -76,9 +80,25 @@ namespace AtmiraPayNet.Client.Services
             else
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var payment= JsonConvert.DeserializeObject<PaymentDTO>(content);
+                var payment = JsonConvert.DeserializeObject<PaymentDTO>(content);
 
                 return payment!;
+            }
+        }
+
+        public async Task DownloadPDF(Guid id)
+        {
+            var token = await _localStorageService.GetItemAsync<string>("token") ?? throw new Exception("Token not found");
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.GetAsync($"api/payment/pdf?id={id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string pdfBase64 = await response.Content.ReadAsStringAsync();
+
+                await _jsRuntime.InvokeVoidAsync("downloadPdf", pdfBase64, $"{id}.pdf");
             }
         }
     }

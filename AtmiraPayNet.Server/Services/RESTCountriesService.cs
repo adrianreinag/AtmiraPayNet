@@ -1,5 +1,5 @@
-﻿using AtmiraPayNet.Shared.DTO;
-using AtmiraPayNet.Server.Services.Interfaces;
+﻿using AtmiraPayNet.Server.Services.Interfaces;
+using AtmiraPayNet.Shared.DTO;
 using Newtonsoft.Json;
 
 namespace AtmiraPayNet.Server.Services

@@ -1,0 +1,44 @@
+﻿@using System.Text.RegularExpressions
+@inherits InputText
+
+@code {
+    [Parameter]
+    public bool EditMode { get; set; }
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "€";
+
+    private string inputValue;
+
+    [Parameter]
+    public EventCallback<float> ValueChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Inicializar el valor con 0 si no se proporciona un valor inicial
+        if (string.IsNullOrEmpty(inputValue))
+        {
+            inputValue = "0";
+        }
+    }
+
+    private async Task FormatCurrency(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        input = Regex.Replace(input, @"[^0-9\.]", ""); // Eliminar cualquier carácter que no sea un dígito o un punto decimal
+
+        // Convertir la entrada a un valor float
+        if (float.TryParse(input, out float result))
+        {
+            inputValue = result.ToString();
+            await ValueChanged.InvokeAsync(result);
+        }
+        else
+        {
+            inputValue = "0"; // Si no se puede convertir, establecer el valor en cero
+            await ValueChanged.InvokeAsync(0);
+        }
+    }
+}
+
+<input type="text" class="form-control" value="@inputValue" @oninput="FormatCurrency" readonly="@(!EditMode)" />

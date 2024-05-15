@@ -5,78 +5,238 @@
 @using AtmiraPayNet.Shared.Utils
 
 @inject IPaymentService paymentService;
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Payments</h3>
+<script>
+    function downloadPdf(pdfBase64, fileName) {
+        var link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + pdfBase64;
+        link.download = fileName;
 
-<a class="btn btn-success btn-sm mb-3" href="payment">Create payment</a>
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Source Bank</th>
-            <th>Destination Bank</th>
-            <th>Amount</th>
-            <th>Currency</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (simplePaymentList == null)
-        {
-            <tr>
-                <td colspan="6" align="center">
-                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" />
-                </td>
-            </tr>
-        }
-        else
-        {
-            @foreach (var item in simplePaymentList)
-            {
+<div class="page">
+
+@if (simplePaymentList == null)
+{
+    <div class="loading-container">
+        <img src="assets/loading.svg" alt="loading" class="loading" />
+    </div>
+}
+else
+{
+    <div class="payments-container">
+        <h3 class="title">Lista de pagos</h3>
+
+
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.SourceBankName</td>
-                    <td>@item.DestinationBankName</td>
-                    <td>@item.Amount</td>
-                    <td>@item.Currency.Symbol (@item.Currency.Name)</td>
-                    <td>@item.Status</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="payment/@item.Id">
+                    <th>Banco de origen</th>
+                    <th>Banco de destino</th>
+                    <th>Cantidad</th>
+                    <th>Divisa</th>
+                    <th>Estado</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in simplePaymentList)
+                {
+                    <tr class="@(item.Status == Status.Generated ? "generated-row" : "")">
+                        <td>@item.SourceBankName</td>
+                        <td>@item.DestinationBankName</td>
+                        <td>@item.Amount</td>
+                        <td>@item.Currency.Symbol (@item.Currency.Name)</td>
+                        @if (item.Status == Status.Draft)
+                        {
+                            <td>Borrador</td>
+                        }
+                        else
+                        {
+                            <td>Cerrado</td>
+                        }
+
+                        <td>
                             @if (item.Status == Status.Generated)
                             {
-                                <text>View</text>
+                                <button class="btn btn-icon btn-primary" @onclick="() => RedirectToPayment(item.Id)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             }
                             else
                             {
-                                <text>Edit</text>
+                                <button class="btn btn-icon btn-success" @onclick="() => RedirectToPayment(item.Id)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                             }
-                        </a>
-                        <button class="btn btn-secondary btn-sm" @onclick="(() => DownloadPDF(item.Id))">
-                            Download PDF
-                        </button>
-                    </td>
+                        </td>
+                        <td>
+                            @if (item.Status == Status.Generated)
+                            {
+                                    <button class="btn btn-icon btn-secondary" @onclick="(() => DownloadPDF(item.Id))">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            }
 
+                        </td>
+
+                    </tr>
+                }
+                <tr>
+                    <td colspan="7" align="center">
+                        <a class="btn btn-create" href="payment">Create payment</a>
+                    </td>
                 </tr>
-            }
+
+            </tbody>
+        </table>
+    </div>
+}
+</div>
+
+<style>
+    .page {
+        height: 100vh;
+        background-color: white;
+    }
+
+    .payments-container {
+        padding: 80px 40px;
+        z-index: -2;
+        height: 100vh;
+    }
+
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .loading {
+        width: 200px;
+    }
+
+    .title {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .btn-icon {
+        aspect-ratio: 1;
+        padding: 0;
+        height: 30px;
+        border: none;
+        border-radius: 50px;
+        color: white;
+    }
+
+    .btn-create {
+        background-color: rgb(222, 29, 112);
+        height: 40px;
+        width: 100%;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        margin-top: 20px;
+    }
+
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
-    </tbody>
-</table>
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:not(:last-child):hover {
+            background-color: #ddd;
+        }
+
+
+        .table th:nth-child(1), .table td:nth-child(1) {
+            width: 20%;
+        }
+
+        .table th:nth-child(2), .table td:nth-child(2) {
+            width: 20%;
+        }
+
+        .table th:nth-child(3), .table td:nth-child(3) {
+            width: 20%;
+        }
+
+        .table th:nth-child(4), .table td:nth-child(4) {
+            width: 20%;
+        }
+
+        .table th:nth-child(5), .table td:nth-child(5) {
+            width: 10%;
+            text-align: center;
+        }
+
+        .table th:nth-child(6), .table td:nth-child(6) {
+            width: 5%;
+            text-align: center;
+        }
+
+        .table th:nth-child(7), .table td:nth-child(7) {
+            width: 5%;
+            text-align: center;
+        }
+
+        .table tr:last-child td {
+            padding: 0;
+            border: 0;
+        }
+
+
+
+    .generated-row {
+        background-color: #ccc;
+    }
+
+</style>
 
 @code {
     List<SimplePaymentDTO>? simplePaymentList = null;
 
     protected override async Task OnInitializedAsync()
     {
-        simplePaymentList = await paymentService.GetListPayment();
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        if (!user.Identity!.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        simplePaymentList = await paymentService.GetPaymentList();
     }
 
     private async Task DownloadPDF(Guid id)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2));
+        await paymentService.DownloadPDF(id);
+    }
 
-        // Aquí colocarías el código real para la descarga del PDF
-        // Por ejemplo:
-        // var pdfBytes = await _pdfService.DownloadPdfAsync(id);
-        // Luego puedes procesar los bytes del PDF como desees
+    private void RedirectToPayment(Guid itemId)
+    {
+        NavigationManager.NavigateTo($"payment/{itemId}");
     }
 }

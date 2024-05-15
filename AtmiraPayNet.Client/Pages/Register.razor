@@ -5,62 +5,71 @@
 @using AtmiraPayNet.Shared.DTO
 
 @inject IAuthService userService;
-@inject ILocalStorageService localStorageService;
 @inject NavigationManager navigation;
+
+<link rel="stylesheet" href="css/access.css" />
 
 <PageTitle>Register</PageTitle>
 
-<h1>Register</h1>
+<div class="access-page">
+    <div class="access-form register-form">
+        <h1 class="title">Regístrate</h1>
+        <EditForm Model="register" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="row">
 
-<EditForm Model="register" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="col-6">
 
-    <div class="mb-3">
-        <label class="form-label">Nombre completo</label>
-        <InputText class="form-control" @bind-Value="register.Fullname"></InputText>
-        <ValidationMessage For="@(() => register.Fullname)"></ValidationMessage>
-        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo</label>
+                        <InputText class="form-control" @bind-Value="register.Fullname"></InputText>
+                        <ValidationMessage For="@(() => register.Fullname)"></ValidationMessage>
+                    </div>
 
-    <div class="mb-3">
-        <label class="form-label">Nombre de usuario</label>
-        <InputText class="form-control" @bind-Value="register.UserName"></InputText>
-        <ValidationMessage For="@(() => register.UserName)"></ValidationMessage>
+                    <div class="mb-3 row">
+                        <div class="col-6">
+                            <label class="form-label">Nombre de usuario</label>
+                            <InputText class="form-control" @bind-Value="register.UserName"></InputText>
+                            <ValidationMessage For="@(() => register.UserName)"></ValidationMessage>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Fecha de nacimiento</label>
+                            <InputDate class="form-control" @bind-Value="register.DateOfBirth"></InputDate>
+                            <ValidationMessage For="@(() => register.DateOfBirth)"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+
+
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <InputText class="form-control" @bind-Value="register.Password" type="password"></InputText>
+                        <ValidationMessage For="@(() => register.Password)"></ValidationMessage>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar contraseña</label>
+                        <InputText class="form-control" @bind-Value="register.ConfirmPassword" type="password"></InputText>
+                        <ValidationMessage For="@(() => register.ConfirmPassword)"></ValidationMessage>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" type="submit">Crear cuenta</button>
+            <a class="text-btn" href="login">Iniciar sesión</a>
+        </EditForm>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Contraseña</label>
-        <InputText class="form-control" @bind-Value="register.Password"></InputText>
-        <ValidationMessage For="@(() => register.Password)"></ValidationMessage>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Confirmar contraseña</label>
-        <InputText class="form-control" @bind-Value="register.ConfirmPassword"></InputText>
-        <ValidationMessage For="@(() => register.ConfirmPassword)"></ValidationMessage>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Fecha de nacimiento</label>
-        <InputDate class="form-control" @bind-Value="register.DateOfBirth"></InputDate>
-        <ValidationMessage For="@(() => register.DateOfBirth)"></ValidationMessage>
-    </div>
-
-    <button class="btn btn-primary" type="submit">Crear usuario</button>
-
-    <a class="btn btn-warning" href="logins">Volver a logins</a>
-</EditForm>
+</div>
 
 @code {
     RegisterDTO register = new RegisterDTO();
 
     private async Task OnValidSubmit()
     {
-        var token = await userService.Register(register);
-
-        if (!string.IsNullOrEmpty(token))
+        if (await userService.Register(register))
         {
-            await localStorageService.Set("token", token);
-            navigation.NavigateTo("/home");
+            navigation.NavigateTo("");
         }
     }
 }

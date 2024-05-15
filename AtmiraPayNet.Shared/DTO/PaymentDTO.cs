@@ -6,6 +6,7 @@ namespace AtmiraPayNet.Shared.DTO
     public class PaymentDTO
     {
         [Required(ErrorMessage = "El IBAN de la cuenta de origen es requerido")]
+        [RegularExpression(@"^[A-Z]{2}\d{2}[A-Z\d]{4}\d{7}([A-Z\d]?){0,16}$", ErrorMessage = "El formato del IBAN no es válido")]
         public string? SourceIBAN { get; set; }
 
         [Required(ErrorMessage = "El nombre del banco de origen es requerido")]
@@ -40,5 +41,8 @@ namespace AtmiraPayNet.Shared.DTO
         public string? IntermediaryBankCountry { get; set; }
 
         public Status Status { get; set; }
+
+        public string? ErrorSourceBankCountry { get; set; }
+        public string? ErrorDestinationBankCountry { get; set; }
     }
 }

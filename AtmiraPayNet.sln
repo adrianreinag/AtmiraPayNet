@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtmiraPayNet.Server", "AtmiraPayNet.Server\AtmiraPayNet.Server.csproj", "{29D5009A-0856-495D-BA96-3F174C83529E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtmiraPayNet.Server", "AtmiraPayNet.Server\AtmiraPayNet.Server.csproj", "{29D5009A-0856-495D-BA96-3F174C83529E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtmiraPayNet.Client", "AtmiraPayNet.Client\AtmiraPayNet.Client.csproj", "{A096B390-EB78-4529-A83D-484D0460F76C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtmiraPayNet.Client", "AtmiraPayNet.Client\AtmiraPayNet.Client.csproj", "{A096B390-EB78-4529-A83D-484D0460F76C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtmiraPayNet.Shared", "AtmiraPayNet.Shared\AtmiraPayNet.Shared.csproj", "{CC171D72-7D12-4990-95FC-393F2F4A26AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtmiraPayNet.Shared", "AtmiraPayNet.Shared\AtmiraPayNet.Shared.csproj", "{CC171D72-7D12-4990-95FC-393F2F4A26AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,75 @@
+﻿
+.access-page {
+    padding-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.access-form {
+    width: 100%;
+    padding: 30px;
+    border-radius: 25px;
+    background-color: #fff;
+}
+
+.login-form {
+    max-width: 500px;
+}
+
+.register-form {
+    max-width: 800px;
+    }
+
+    .access-form .title {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .access-form .form-label {
+        font-weight: bold;
+    }
+
+    .access-form .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+    }
+
+.btn,
+.text-btn {
+    display: block;
+    width: 100%; /* Establecer la anchura al 100% */
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 100px;
+    cursor: pointer;
+    margin-top: 20px;
+    text-align: center; /* Alinear el texto al centro */
+    text-decoration: none; /* Quitar subrayado en el enlace */
+}
+
+.btn {
+    background-color: rgb(222, 29, 112);
+    color: white;
+    border: none;
+    margin-top: 40px; /* Ajustar el margen superior según sea necesario */
+}
+
+    .btn:hover {
+        background-color: rgb(242, 49, 132);
+        color: white;
+    }
+
+.text-btn {
+    color: black;
+    margin-top: 20px; /* Ajustar el margen superior según sea necesario */
+    padding: 0px;
+}
+
+    .text-btn:hover {
+        color: black;
+    }

@@ -6,7 +6,7 @@
         required public Guid Id { get; set; }
 
         // Relationships
-        required public List<BankAccount> BankAccounts { get; set;}
+        required public List<BankAccount> BankAccounts { get; set; }
 
         // Properties
         required public string Name { get; set; }

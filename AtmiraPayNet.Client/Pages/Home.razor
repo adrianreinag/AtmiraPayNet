@@ -1,7 +1,92 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Inicio</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="welcome-page">
+    <div class="content text-center">
+        <div class="center-content">
+            <img src="assets/atmiraPayNet.svg" alt="Logo" class="logo" />
+            <p class="welcome-text">
+                ¡Descubre el futuro de las transacciones financieras con AtmiraPayNet! Tu puerta de entrada a la innovación en pagos seguros y eficientes.
+            </p>
+            <AuthorizeView>
+                <Authorized>
 
-Welcome to your new app.
+                    <a class="btn" href="payments">Ver lista de pagos</a>
+
+                </Authorized>
+                <NotAuthorized>
+
+                    <a class="btn" href="login">Iniciar sesión</a>
+                    <a class="text-btn" href="login">Crear cuenta</a>
+
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>
+
+<style>
+    .welcome-page {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .content {
+        z-index: 1;
+    }
+
+    .center-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo {
+        width: 500px;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+    }
+
+    .welcome-text {
+        font-size: 16px;
+        color: white;
+        max-width: 60%;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .btn, .text-btn {
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 100px;
+        cursor: pointer;
+        width: 200px;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .btn {
+        background-color: rgb(222, 29, 112);
+        color: white;
+        border: none;
+        margin-bottom: 10px;
+    }
+
+        .btn:hover {
+            background-color: rgb(242, 49, 132);
+            color: white;
+        }
+
+    .text-btn {
+        color: white;
+    }
+
+        .text-btn:hover {
+            color: white;
+        }
+</style>

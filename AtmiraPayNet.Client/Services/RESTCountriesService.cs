@@ -1,5 +1,6 @@
 ﻿using AtmiraPayNet.Client.Services.Interfaces;
 using AtmiraPayNet.Shared.DTO;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace AtmiraPayNet.Client.Services
@@ -12,16 +13,16 @@ namespace AtmiraPayNet.Client.Services
         {
             try
             {
-                HttpResponseMessage response = await _http.GetAsync($"https://restcountries.com/v3.1/all?fields=name");
+                HttpResponseMessage response = await _http.GetAsync($"https://restcountries.com/v3.1/all?fields=name,cca2,currencies");
 
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = await response.Content.ReadAsStringAsync();
-                    List<CountryDTO>? countryList = JsonConvert.DeserializeObject<List<CountryDTO>>(jsonResponse) ?? [];
+                    var jsonObject = JsonConvert.DeserializeObject<List<CountryDTO>>(jsonResponse) ?? [];
 
-                    countryList.Sort(new CountryDTOComparer());
+                    jsonObject = [.. jsonObject.OrderBy(x => x.Name.Common)];
 
-                    return countryList;
+                    return jsonObject;
                 }
                 else
                 {
@@ -33,5 +34,32 @@ namespace AtmiraPayNet.Client.Services
                 throw new Exception("Error connecting to the server");
             }
         }
+
+        public async Task<string?> GetCCA2ByCountryName(string countryName)
+        {
+            HttpResponseMessage response = await _http.GetAsync($"https://restcountries.com/v3.1/name/{countryName}?fields=cca2");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                var cca2Response = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(jsonResponse);
+
+                if (cca2Response != null && cca2Response.Count > 0)
+                {
+                    return cca2Response[0]["cca2"];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }
+
