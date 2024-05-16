@@ -3,13 +3,13 @@
     public class Bank
     {
         // Primary key
-        required public Guid Id { get; set; }
+        public required Guid Id { get; set; }
 
         // Relationships
-        required public List<BankAccount> BankAccounts { get; set; }
+        public required List<BankAccount> BankAccounts { get; set; }
 
         // Properties
-        required public string Name { get; set; }
-        required public string CountryName { get; set; }
+        public required string Name { get; set; }
+        public required string CountryName { get; set; }
     }
 }

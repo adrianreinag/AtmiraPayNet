@@ -4,11 +4,11 @@ namespace AtmiraPayNet.Shared.DTO
 {
     public class SimplePaymentDTO
     {
-        required public Guid Id { get; set; }
-        required public string SourceBankName { get; set; }
-        required public string DestinationBankName { get; set; }
-        required public CurrencyDTO Currency { get; set; }
-        required public float Amount { get; set; }
-        required public Status Status { get; set; }
+        public required Guid Id { get; set; }
+        public required string SourceBankName { get; set; }
+        public required string DestinationBankName { get; set; }
+        public required CurrencyDTO Currency { get; set; }
+        public required float Amount { get; set; }
+        public required Status Status { get; set; }
     }
 }

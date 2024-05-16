@@ -3,13 +3,13 @@
     public class PaymentLetter
     {
         // Primary key
-        required public Guid Id { get; set; }
+        public required Guid Id { get; set; }
 
         // Relationships
-        required public Guid PaymentId { get; set; }
+        public required Guid PaymentId { get; set; }
         public Payment? Payment { get; set; }
 
         // Properties
-        required public string PDF { get; set; }
+        public required string PDF { get; set; }
     }
 }

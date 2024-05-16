@@ -1,13 +1,16 @@
 ﻿@using System.Text.RegularExpressions
 @inherits InputText
 
-<input type="text" class="form-control" @bind="@CurrentValue" @attributes="AdditionalAttributes" @oninput="FormatIBAN" readonly="@(!EditMode)" />
+<input type="text" class="form-control" @bind="@CurrentValue" @attributes="AdditionalAttributes" @oninput="FormatIBAN" readonly="@(!EditMode)" maxlength="29" />
 
 @code {
     [Parameter]
     public bool EditMode { get; set; }
 
-    private void FormatIBAN(ChangeEventArgs e)
+    [Parameter]
+    public Func<string, Task>? OnChange { get; set; }
+
+    private async Task FormatIBAN(ChangeEventArgs e)
     {
         string iban = e.Value?.ToString() ?? "";
 
@@ -15,11 +18,19 @@
 
         if (iban.Length > 4)
         {
-            int length = iban.Length;
-            iban = Regex.Replace(iban.Substring(0, length - 4), ".{4}", "$0 ") + iban.Substring(length - 4);
+            iban = Regex.Replace(iban, ".{4}", "$0 ");
+
+            if (iban.Replace(" ", "").Length % 4 == 0)
+            {
+                iban = iban.Substring(0, iban.Length - 1);
+            }
         }
 
-        CurrentValue = iban;
-    }
+        CurrentValue = iban.ToUpper();
 
+        if (OnChange != null)
+        {
+            await OnChange.Invoke(CurrentValue);
+        }
+    }
 }

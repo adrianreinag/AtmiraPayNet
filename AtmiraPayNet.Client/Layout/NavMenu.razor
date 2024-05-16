@@ -12,17 +12,6 @@
                 <AuthorizeView>
                     <Authorized>
 
-                        @* <li class="nav-item">
-                        <NavLink class="nav-link mx-2" href="">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Home
-                        </NavLink>
-                        </li> *@
-                        @* <li class="nav-item ms-3">
-                        <NavLink class="nav-link" href="payments">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Payments
-                        </NavLink>
-                        </li> *@
-
                         @if (context.User.Identity != null)
                         {
                             var fullNameClaim = context.User.Claims.FirstOrDefault(c => c.Type == "fullName");
@@ -43,25 +32,6 @@
                         </li>
 
                     </Authorized>
-                    @* <NotAuthorized>
-
-                    <li class="nav-item">
-                    <NavLink class="nav-link mx-2" href="">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Home
-                    </NavLink>
-                    </li>
-                    <li class="nav-item">
-                    <NavLink class="nav-link mx-2" href="login">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                    </li>
-                    <li class="nav-item">
-                    <NavLink class="nav-link" href="register">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                    </li>
-
-                    </NotAuthorized> *@
                 </AuthorizeView>
             </ul>
         </div>

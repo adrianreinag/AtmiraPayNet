@@ -10,5 +10,6 @@ namespace AtmiraPayNet.Server.Services.Interfaces
         Task<ResponseDTO<PaymentDTO>> GetPaymentById(Guid id);
         Task<ResponseDTO<List<SimplePaymentDTO>>> GetPaymentList();
         Task<ResponseDTO<string>> GetPaymentPDF(Guid id);
+        Task<ResponseDTO<BankDTO>> GetBankByIBAN(string iban);
     }
 }

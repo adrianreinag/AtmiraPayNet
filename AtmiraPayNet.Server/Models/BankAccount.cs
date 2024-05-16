@@ -3,19 +3,19 @@
     public class BankAccount
     {
         // Primary key
-        required public Guid Id { get; set; }
+        public required Guid Id { get; set; }
 
         // Relationships
-        required public Guid BankId { get; set; }
+        public required Guid BankId { get; set; }
         public Bank? Bank { get; set; }
 
-        required public List<Payment> SourcePayments { get; set; }
+        public required List<Payment> SourcePayments { get; set; }
 
-        required public List<Payment> DestinationPayments { get; set; }
+        public required List<Payment> DestinationPayments { get; set; }
 
-        required public List<Payment> IntermediaryPayments { get; set; }
+        public required List<Payment> IntermediaryPayments { get; set; }
 
         // Properties
-        required public IBAN IBAN { get; set; }
+        public required IBAN IBAN { get; set; }
     }
 }

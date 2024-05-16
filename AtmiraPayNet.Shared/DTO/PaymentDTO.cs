@@ -5,44 +5,120 @@ namespace AtmiraPayNet.Shared.DTO
 {
     public class PaymentDTO
     {
-        [Required(ErrorMessage = "El IBAN de la cuenta de origen es requerido")]
-        [RegularExpression(@"^[A-Z]{2}\d{2}[A-Z\d]{4}\d{7}([A-Z\d]?){0,16}$", ErrorMessage = "El formato del IBAN no es válido")]
+        [Required(ErrorMessage = "IBAN requerido")]
+        [StringLength(29, MinimumLength = 29, ErrorMessage = "IBAN inválido")]
         public string? SourceIBAN { get; set; }
 
-        [Required(ErrorMessage = "El nombre del banco de origen es requerido")]
+        [Required(ErrorMessage = "Banco requerido")]
         public string? SourceBankName { get; set; }
 
-        [Required(ErrorMessage = "El país del banco de origen es requerido")]
+        [Required(ErrorMessage = "País requerido")]
         public string? SourceBankCountry { get; set; }
 
-        [Required(ErrorMessage = "El nombre del titular de la cuenta de origen es requerido")]
+        [Required(ErrorMessage = "Código postal requerido")]
         public string? PostalCode { get; set; }
 
-        [Required(ErrorMessage = "La calle del titular de la cuenta de origen es requerida")]
+        [Required(ErrorMessage = "Calle requerida")]
         public string? Street { get; set; }
 
-        [Required(ErrorMessage = "El número de la calle del titular de la cuenta de origen es requerido")]
+        [Required(ErrorMessage = "Número requerido")]
+        [Range(1, int.MaxValue, ErrorMessage = "Número inválido")]
         public int Number { get; set; }
 
-        [Required(ErrorMessage = "La cantidad de la transacción es requerida")]
-        public float Amount { get; set; }
+        [Required(ErrorMessage = "Ciudad requerida")]
+        public string? City { get; set; }
 
-        [Required(ErrorMessage = "El IBAN de la cuenta de destino es requerido")]
+        [Required(ErrorMessage = "País requerido")]
+        public string? Country { get; set; }
+
+        [Required(ErrorMessage = "Cantidad requerida")]
+        [Range(1, int.MaxValue, ErrorMessage = "Cantidad inválida")]
+        public int Amount { get; set; }
+
+        [Required(ErrorMessage = "IBAN requerido")]
+        [StringLength(29, MinimumLength = 29, ErrorMessage = "IBAN inválido")]
         public string? DestinationIBAN { get; set; }
 
-        [Required(ErrorMessage = "El nombre del banco de destino es requerido")]
+        [Required(ErrorMessage = "Banco requerido")]
         public string? DestinationBankName { get; set; }
 
-        [Required(ErrorMessage = "El país del banco de destino es requerido")]
+        [Required(ErrorMessage = "País requerido")]
         public string? DestinationBankCountry { get; set; }
 
+        [RequiredIfIBANPrefixDiffers]
         public string? IntermediaryIBAN { get; set; }
+
+        [RequiredIfPropertyPrefixDiffers("Banco requerido")]
         public string? IntermediaryBankName { get; set; }
+
+        [RequiredIfPropertyPrefixDiffers("País requerido")]
         public string? IntermediaryBankCountry { get; set; }
 
         public Status Status { get; set; }
-
-        public string? ErrorSourceBankCountry { get; set; }
-        public string? ErrorDestinationBankCountry { get; set; }
     }
+
+    public class RequiredIfIBANPrefixDiffersAttribute : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var model = (PaymentDTO)validationContext.ObjectInstance;
+
+            if (model != null)
+            {
+                var sourceIBAN = model.SourceIBAN;
+                var destinationIBAN = model.DestinationIBAN;
+                var intermediaryIBAN = (string?)value;
+
+                if (!string.IsNullOrEmpty(sourceIBAN) &&
+                    !string.IsNullOrEmpty(destinationIBAN) &&
+                    sourceIBAN.Length >= 2 &&
+                    destinationIBAN.Length >= 2 &&
+                    sourceIBAN[..2] != destinationIBAN[..2])
+                {
+                    if (string.IsNullOrEmpty(intermediaryIBAN))
+                    {
+                        return new ValidationResult("IBAN requerido");
+                    }
+                    else if (model.IntermediaryIBAN!.Length != 29)
+                    {
+                        return new ValidationResult("IBAN inválido");
+                    }
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+    }
+
+    public class RequiredIfPropertyPrefixDiffersAttribute(string errorMessage) : ValidationAttribute
+    {
+        public new string ErrorMessage { get; set; } = errorMessage;
+
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var model = (PaymentDTO)validationContext.ObjectInstance;
+
+            if (model != null)
+            {
+                var sourceIBAN = model.SourceIBAN;
+                var destinationIBAN = model.DestinationIBAN;
+                var property = (string?)value;
+
+                if (!string.IsNullOrEmpty(sourceIBAN) &&
+                    !string.IsNullOrEmpty(destinationIBAN) &&
+                    sourceIBAN.Length >= 2 &&
+                    destinationIBAN.Length >= 2 &&
+                    sourceIBAN[..2] != destinationIBAN[..2] &&
+                    string.IsNullOrEmpty(property))
+                {
+                    return new ValidationResult(ErrorMessage);
+
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+    }
+
+    
 }

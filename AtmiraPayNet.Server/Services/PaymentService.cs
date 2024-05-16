@@ -40,7 +40,7 @@ namespace AtmiraPayNet.Server.Services
                     IntermediaryAccountId = responseValidation.Value.Item3?.Id,
                     Amount = request.Amount,
                     Status = request.Status,
-                    Address = new Address(request.Number!, request.Street!, request.SourceBankCountry!, request.PostalCode!)
+                    Address = new Address(request.Number!, request.Street!, request.City!, request.Country!, request.PostalCode!)
                 };
 
                 var createdPayment = _context.Payments.Add(payment).Entity;
@@ -127,7 +127,7 @@ namespace AtmiraPayNet.Server.Services
                 payment.IntermediaryAccountId = responseValidation.Value.Item3?.Id;
                 payment.Amount = request.Amount;
                 payment.Status = request.Status;
-                payment.Address = new Address(request.Number!, request.Street!, request.SourceBankCountry!, request.PostalCode!);
+                payment.Address = new Address(request.Number!, request.Street!, request.City!, request.Country!, request.PostalCode!);
 
                 var updatedPayment = _context.Payments.Update(payment).Entity;
                 await _context.SaveChangesAsync();
@@ -456,6 +456,31 @@ namespace AtmiraPayNet.Server.Services
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Carta de pago encontrada",
                 Value = payment.PaymentLetter.PDF
+            });
+        }
+
+        public Task<ResponseDTO<BankDTO>> GetBankByIBAN(string iban)
+        {
+            var bank = _context.BankAccounts.Include(b => b.Bank).FirstOrDefault(b => b.IBAN == new IBAN(iban))?.Bank;
+
+            if (bank == null)
+            {
+                return Task.FromResult(new ResponseDTO<BankDTO>
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = "No se ha encontrado el banco"
+                });
+            }
+
+            return Task.FromResult(new ResponseDTO<BankDTO>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Banco encontrado",
+                Value = new BankDTO
+                {
+                    Name = bank.Name,
+                    CountryName = bank.CountryName
+                }
             });
         }
     }

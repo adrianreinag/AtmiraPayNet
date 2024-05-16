@@ -5,16 +5,16 @@ namespace AtmiraPayNet.Server.Models
     public class Payment
     {
         // Primary key
-        required public Guid Id { get; set; }
+        public required Guid Id { get; set; }
 
         // Relationships
-        required public string UserId { get; set; }
+        public required string UserId { get; set; }
         public User? User { get; set; }
 
-        required public Guid SourceAccountId { get; set; }
+        public required Guid SourceAccountId { get; set; }
         public BankAccount? SourceAccount { get; set; }
 
-        required public Guid DestinationAccountId { get; set; }
+        public required Guid DestinationAccountId { get; set; }
         public BankAccount? DestinationAccount { get; set; }
 
         public Guid? IntermediaryAccountId { get; set; }
@@ -24,8 +24,8 @@ namespace AtmiraPayNet.Server.Models
         public PaymentLetter? PaymentLetter { get; set; }
 
         // Properties
-        required public Address Address { get; set; }
-        required public float Amount { get; set; }
-        required public Status Status { get; set; }
+        public required Address Address { get; set; }
+        public required int Amount { get; set; }
+        public required Status Status { get; set; }
     }
 }

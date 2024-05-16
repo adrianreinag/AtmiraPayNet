@@ -5,6 +5,8 @@
 @using AtmiraPayNet.Shared.DTO
 @using AtmiraPayNet.Client.Services.Interfaces
 @using AtmiraPayNet.Shared.Utils
+@using System.Text.RegularExpressions
+@using System.Globalization
 
 @inject IPaymentService paymentService;
 @inject IRESTCountriesService countriesService;
@@ -12,6 +14,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Payment</PageTitle>
+
+<link rel="stylesheet" href="css/payment.css" />
 
 <div class="page">
 
@@ -31,7 +35,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.SourceIBAN" EditMode="@editMode" />
+                                <InputIBAN @bind-Value="payment.SourceIBAN" EditMode="@editMode" OnChange="ChangeSourceIBAN" />
                                 <ValidationMessage For="@(() => payment.SourceIBAN)"></ValidationMessage>
                             </div>
 
@@ -46,7 +50,14 @@
                                 <select class="form-control" @onchange="OnSourceCountrySelected" disabled="@(!editMode)">
                                     @if (createMode)
                                     {
-                                        <option value="" disabled selected>Selecciona una opción</option>
+                                        @if (payment.SourceBankCountry == null)
+                                        {
+                                            <option value="" disabled selected>Selecciona una opción</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@payment.SourceBankCountry" disabled selected>@payment.SourceBankCountry</option>
+                                        }
                                     }
                                     else
                                     {
@@ -59,10 +70,6 @@
                                     }
                                 </select>
                                 <ValidationMessage For="@(() => payment.SourceBankCountry)"></ValidationMessage>
-                                @if (!string.IsNullOrEmpty(payment.ErrorSourceBankCountry))
-                                {
-                                    <span class="text-danger">@payment.ErrorSourceBankCountry</span>
-                                }
                             </div>
 
                             <div class="mb-3">
@@ -83,7 +90,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.DestinationIBAN" EditMode="@editMode" />
+                                <InputIBAN @bind-Value="payment.DestinationIBAN" EditMode="@editMode" OnChange="ChangeDestinationIBAN" />
                                 <ValidationMessage For="@(() => payment.DestinationIBAN)"></ValidationMessage>
                             </div>
 
@@ -120,7 +127,7 @@
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="card px-3 pt-5 mx-2">
+                    <div class="card px-3 pt-5 mx-2 disabled">
                         <div class="card-title">
                             <h4 class="subtitle">Intermediario</h4>
                         </div>
@@ -128,19 +135,19 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@editMode" />
+                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" OnChange="IntermediaryIBANComplete" />
                                 <ValidationMessage For="@(() => payment.IntermediaryIBAN)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Nombre del banco</label>
-                                <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.IntermediaryBankName"></InputText>
+                                <InputText class="form-control" readonly="@(!editMode || intermediaryDisabled)" @bind-Value="payment.IntermediaryBankName"></InputText>
                                 <ValidationMessage For="@(() => payment.IntermediaryBankName)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="OnIntermediaryCountrySelected" disabled="@(!editMode)">
+                                <select class="form-control" @onchange="OnIntermediaryCountrySelected" disabled="@(!editMode || intermediaryDisabled)">
                                     @if (createMode)
                                     {
                                         <option value="" disabled selected>Selecciona una opción</option>
@@ -191,13 +198,13 @@
 
                         <div class="mb-3 col-3">
                             <label class="form-label">Ciudad</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.Street"></InputText>
+                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.City"></InputText>
                             <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
                         </div>
 
                         <div class="mb-3 col-3">
                             <label class="form-label">Pais</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.Street"></InputText>
+                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.Country"></InputText>
                             <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
                         </div>
 
@@ -210,14 +217,13 @@
                 </div>
             </div>
 
-
             <div class="mx-2 d-flex justify-content-between align-items-end">
                 <div class="mb-3 p-0">
                     <label class="form-label">Cantidad</label>
-                    <InputNumber class="form-control" readonly="@(!editMode)" @bind-Value="payment.Amount" />
-                    @* <InputMoney @bind-Value="payment.Amount" CurrencySymbol="sourceCurrency" /> *@
+                    <InputNumber class="form-control" readonly="@(!editMode)" @bind-Value="payment.Amount"></InputNumber>
                     <ValidationMessage For="@(() => payment.Amount)"></ValidationMessage>
                 </div>
+
 
                 <div>
                     <a class="text-btn" href="payments">Volver al visor de pagos</a>
@@ -225,65 +231,9 @@
                 </div>
             </div>
 
-
         </EditForm>
     </div>
 </div>
-
-<style>
-    .page {
-        background-color: white;
-    }
-
-    .payments-container {
-        padding: 80px 40px;
-        z-index: -2;
-    }
-
-    .title {
-        margin-bottom: 30px;
-        text-align: center;
-    }
-
-    .subtitle {
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .btn {
-        color: white;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 50px;
-        padding: 10px 40px;
-        font-size: 18px;
-    }
-
-        .btn:hover {
-            color: white;
-        }
-
-    .btn-create {
-        background-color: rgb(222, 29, 112);
-    }
-
-        .btn-create:hover {
-            background-color: rgb(242, 49, 132);
-        }
-
-    .text-btn {
-        color: black;
-        padding: 10px 20px;
-        font-size: 18px;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-    }
-
-        .text-btn:hover {
-            color: black;
-        }
-</style>
 
 @code {
     [Parameter] public Guid id { get; set; } = Guid.Empty;
@@ -297,6 +247,8 @@
     string destinationCurrency = string.Empty;
     string intermediaryCurrency = string.Empty;
 
+    bool intermediaryDisabled = true;
+
     PaymentDTO payment = new PaymentDTO();
     List<CountryDTO> countryList = new List<CountryDTO>();
 
@@ -305,11 +257,11 @@
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authenticationState.User;
 
-        // if (!user.Identity!.IsAuthenticated)
-        // {
-        //     NavigationManager.NavigateTo("/login");
-        //     return;
-        // }
+        if (!user.Identity!.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
 
         createMode = id == Guid.Empty;
 
@@ -340,11 +292,85 @@
         }
     }
 
-    private async void OnSourceCountrySelected(ChangeEventArgs e)
+    private void SetIntermediaryDisabled()
+    {
+        string sourceIban = payment.SourceIBAN ?? string.Empty;
+        string destinationIban = payment.DestinationIBAN ?? string.Empty;
+
+        if (sourceIban.Length >= 2 &&
+            destinationIban.Length >= 2 &&
+            sourceIban.Substring(0, 2) == destinationIban.Substring(0, 2))
+        {
+            intermediaryDisabled = true;
+        }
+        else
+        {
+            intermediaryDisabled = false;
+        }
+    }
+
+    private async Task ChangeSourceIBAN(string iban)
+    {
+        iban = iban.Replace(" ", "");
+        if (iban.Length == 24)
+        {
+            var bankData = await paymentService.GetBankByIBAN(iban);
+
+            if (bankData == null)
+            {
+                return;
+            }
+
+            payment.SourceBankName = bankData.Name;
+            payment.SourceBankCountry = bankData.CountryName;
+            sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
+        }
+
+        SetIntermediaryDisabled();
+    }
+
+    private async Task ChangeDestinationIBAN(string iban)
+    {
+        iban = iban.Replace(" ", "");
+        if (iban.Length == 24)
+        {
+            var bankData = await paymentService.GetBankByIBAN(iban);
+
+            if (bankData == null)
+            {
+                return;
+            }
+
+            payment.DestinationBankName = bankData.Name;
+            payment.DestinationBankCountry = bankData.CountryName;
+            destinationCurrency = GetCurrencyByCountryName(payment.DestinationBankCountry!);
+        }
+
+        SetIntermediaryDisabled();
+    }
+
+    private async Task IntermediaryIBANComplete(string iban)
+    {
+        iban = iban.Replace(" ", "");
+        if (iban.Length == 24)
+        {
+            var bankData = await paymentService.GetBankByIBAN(iban);
+
+            if (bankData == null)
+            {
+                return;
+            }
+
+            payment.IntermediaryBankName = bankData.Name;
+            payment.IntermediaryBankCountry = bankData.CountryName;
+            intermediaryCurrency = GetCurrencyByCountryName(payment.IntermediaryBankCountry!);
+        }
+    }
+
+    private void OnSourceCountrySelected(ChangeEventArgs e)
     {
         payment.SourceBankCountry = e.Value!.ToString();
         sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
-        await ValidateSourceIBANCountry();
     }
 
     private void OnDestinationCountrySelected(ChangeEventArgs e)
@@ -378,34 +404,15 @@
         return currency.Name ?? "No se ha encontrado la divisa";
     }
 
-    public async Task ValidateSourceIBANCountry()
-    {
-        var countryCode = await countriesService.GetCCA2ByCountryName(payment.SourceBankCountry ?? "");
-
-        if (string.IsNullOrEmpty(countryCode))
-        {
-            payment.ErrorSourceBankCountry = "No se ha encontrado el código del país del banco seleccionado";
-        }
-
-        string ibanCountryCode = payment.SourceIBAN?.Substring(0, 2) ?? "";
-
-        if (ibanCountryCode != countryCode)
-        {
-            payment.ErrorSourceBankCountry = "Las dos primeras letras del IBAN no coinciden con el país del banco seleccionado";
-        }
-
-        payment.ErrorSourceBankCountry = string.Empty;
-    }
-
     private async Task OnValidSubmit()
     {
-        if (id != Guid.Empty)
-        {
-            await paymentService.UpdatePayment(id, payment);
-        }
-        else
-        {
-            await paymentService.CreatePayment(payment);
-        }
+        // if (id != Guid.Empty)
+        // {
+        //     await paymentService.UpdatePayment(id, payment);
+        // }
+        // else
+        // {
+        //     await paymentService.CreatePayment(payment);
+        // }
     }
 }

@@ -101,5 +101,26 @@ namespace AtmiraPayNet.Client.Services
                 await _jsRuntime.InvokeVoidAsync("downloadPdf", pdfBase64, $"{id}.pdf");
             }
         }
+
+        public async Task<BankDTO> GetBankByIBAN(string iban)
+        {
+            var token = await _localStorageService.GetItemAsync<string>("token") ?? throw new Exception("Token not found");
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.GetAsync($"api/payment/bank?iban={iban}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(response.ReasonPhrase);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var bank = JsonConvert.DeserializeObject<BankDTO>(content);
+
+                return bank!;
+            }
+        }
     }
 }

@@ -1,0 +1,52 @@
+﻿.page {
+    background-color: white;
+}
+
+.payments-container {
+    padding: 80px 40px;
+    z-index: -2;
+}
+
+.title {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.subtitle {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.btn {
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+    border-radius: 50px;
+    padding: 10px 40px;
+    font-size: 18px;
+}
+
+    .btn:hover {
+        color: white;
+    }
+
+.btn-create {
+    background-color: rgb(222, 29, 112);
+}
+
+    .btn-create:hover {
+        background-color: rgb(242, 49, 132);
+    }
+
+.text-btn {
+    color: black;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+    .text-btn:hover {
+        color: black;
+    }

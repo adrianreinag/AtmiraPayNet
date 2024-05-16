@@ -5,10 +5,10 @@ namespace AtmiraPayNet.Server.Models
     public class User : IdentityUser
     {
         // Relationships
-        required public List<Payment> Payments { get; set; }
+        public required List<Payment> Payments { get; set; }
 
         // Properties
-        required public string FullName { get; set; }
-        required public DateOnly DateOfBirth { get; set; }
+        public required string FullName { get; set; }
+        public required DateOnly DateOfBirth { get; set; }
     }
 }

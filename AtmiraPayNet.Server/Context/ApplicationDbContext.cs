@@ -6,10 +6,10 @@ namespace AtmiraPayNet.Server.Context
 {
     public class ApplicationDbContext(DbContextOptions options) : IdentityDbContext(options), IApplicationDbContext
     {
-        required public DbSet<Bank> Banks { get; set; }
-        required public DbSet<BankAccount> BankAccounts { get; set; }
-        required public DbSet<Payment> Payments { get; set; }
-        required public DbSet<PaymentLetter> PaymentLetters { get; set; }
+        public required DbSet<Bank> Banks { get; set; }
+        public required DbSet<BankAccount> BankAccounts { get; set; }
+        public required DbSet<Payment> Payments { get; set; }
+        public required DbSet<PaymentLetter> PaymentLetters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
