@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace AtmiraPayNet.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class TableCreation : Migration
+    public partial class CreateDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +31,7 @@ namespace AtmiraPayNet.Server.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
-                    Fullname = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -50,19 +51,6 @@ namespace AtmiraPayNet.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Banks",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CountryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Banks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,35 +160,18 @@ namespace AtmiraPayNet.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BankAccounts",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IBAN = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BankAccounts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BankAccounts_Banks_BankId",
-                        column: x => x.BankId,
-                        principalTable: "Banks",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SourceAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DestinationAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IntermediaryAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Amount = table.Column<float>(type: "real", nullable: false),
+                    PaymentLetterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Amount = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DestinationAccount = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IntermediaryAccount = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SourceAccount = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -210,21 +181,6 @@ namespace AtmiraPayNet.Server.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Payments_BankAccounts_DestinationAccountId",
-                        column: x => x.DestinationAccountId,
-                        principalTable: "BankAccounts",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Payments_BankAccounts_IntermediaryAccountId",
-                        column: x => x.IntermediaryAccountId,
-                        principalTable: "BankAccounts",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Payments_BankAccounts_SourceAccountId",
-                        column: x => x.SourceAccountId,
-                        principalTable: "BankAccounts",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -233,7 +189,7 @@ namespace AtmiraPayNet.Server.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LetterPDF = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PDF = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -286,30 +242,10 @@ namespace AtmiraPayNet.Server.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BankAccounts_BankId",
-                table: "BankAccounts",
-                column: "BankId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PaymentLetters_PaymentId",
                 table: "PaymentLetters",
                 column: "PaymentId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_DestinationAccountId",
-                table: "Payments",
-                column: "DestinationAccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_IntermediaryAccountId",
-                table: "Payments",
-                column: "IntermediaryAccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_SourceAccountId",
-                table: "Payments",
-                column: "SourceAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_UserId",
@@ -346,12 +282,6 @@ namespace AtmiraPayNet.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "BankAccounts");
-
-            migrationBuilder.DropTable(
-                name: "Banks");
         }
     }
 }

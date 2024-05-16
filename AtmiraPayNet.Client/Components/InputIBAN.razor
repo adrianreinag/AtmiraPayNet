@@ -8,13 +8,11 @@
     public bool EditMode { get; set; }
 
     [Parameter]
-    public Func<string, Task>? OnChange { get; set; }
+    public EventCallback OnChange { get; set; }
 
     private async Task FormatIBAN(ChangeEventArgs e)
     {
-        string iban = e.Value?.ToString() ?? "";
-
-        iban = iban.Replace(" ", "").Replace("-", "");
+        string iban = e.Value?.ToString()?.ToUpper().Replace(" ", "") ?? "";
 
         if (iban.Length > 4)
         {
@@ -26,11 +24,11 @@
             }
         }
 
-        CurrentValue = iban.ToUpper();
+        CurrentValue = iban;
 
-        if (OnChange != null)
+        if (OnChange.HasDelegate)
         {
-            await OnChange.Invoke(CurrentValue);
+            await OnChange.InvokeAsync();
         }
     }
 }

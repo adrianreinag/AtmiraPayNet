@@ -12,12 +12,12 @@
             <AuthorizeView>
                 <Authorized>
 
-                    <a class="btn" href="payments">Ver lista de pagos</a>
+                    <a class="btn-custom" href="payments">Ver lista de pagos</a>
 
                 </Authorized>
                 <NotAuthorized>
 
-                    <a class="btn" href="login">Iniciar sesión</a>
+                    <a class="btn-custom" href="login">Iniciar sesión</a>
                     <a class="text-btn" href="login">Crear cuenta</a>
 
                 </NotAuthorized>
@@ -59,7 +59,7 @@
         text-align: center;
     }
 
-    .btn, .text-btn {
+    .btn-custom, .text-btn {
         padding: 10px 20px;
         font-size: 18px;
         border-radius: 100px;
@@ -70,18 +70,22 @@
         text-decoration: none;
     }
 
-    .btn {
+    .btn-custom {
         background-color: rgb(222, 29, 112);
         color: white;
         border: none;
         margin-bottom: 10px;
     }
 
-        .btn:hover {
+        .btn-custom:hover {
             background-color: rgb(242, 49, 132);
             color: white;
         }
 
+        .btn-custom:active {
+            background-color: rgb(242, 49, 132);
+            color: white;
+        }
     .text-btn {
         color: white;
     }

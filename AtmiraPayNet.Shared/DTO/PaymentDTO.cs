@@ -1,4 +1,5 @@
 ﻿using AtmiraPayNet.Shared.Utils;
+using AtmiraPayNet.Shared.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace AtmiraPayNet.Shared.DTO
@@ -6,7 +7,7 @@ namespace AtmiraPayNet.Shared.DTO
     public class PaymentDTO
     {
         [Required(ErrorMessage = "IBAN requerido")]
-        [StringLength(29, MinimumLength = 29, ErrorMessage = "IBAN inválido")]
+        [IbanValidation]
         public string? SourceIBAN { get; set; }
 
         [Required(ErrorMessage = "Banco requerido")]
@@ -36,7 +37,7 @@ namespace AtmiraPayNet.Shared.DTO
         public int Amount { get; set; }
 
         [Required(ErrorMessage = "IBAN requerido")]
-        [StringLength(29, MinimumLength = 29, ErrorMessage = "IBAN inválido")]
+        [IbanValidation]
         public string? DestinationIBAN { get; set; }
 
         [Required(ErrorMessage = "Banco requerido")]
@@ -45,80 +46,16 @@ namespace AtmiraPayNet.Shared.DTO
         [Required(ErrorMessage = "País requerido")]
         public string? DestinationBankCountry { get; set; }
 
-        [RequiredIfIBANPrefixDiffers]
+        [RequiredIfIBANPrefixDiffers(ErrorMessage = "IBAN requerido")]
+        [IbanValidation]
         public string? IntermediaryIBAN { get; set; }
 
-        [RequiredIfPropertyPrefixDiffers("Banco requerido")]
+        [RequiredIfIBANPrefixDiffers(ErrorMessage = "Banco requerido")]
         public string? IntermediaryBankName { get; set; }
 
-        [RequiredIfPropertyPrefixDiffers("País requerido")]
+        [RequiredIfIBANPrefixDiffers(ErrorMessage = "País requerido")]
         public string? IntermediaryBankCountry { get; set; }
 
         public Status Status { get; set; }
     }
-
-    public class RequiredIfIBANPrefixDiffersAttribute : ValidationAttribute
-    {
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-        {
-            var model = (PaymentDTO)validationContext.ObjectInstance;
-
-            if (model != null)
-            {
-                var sourceIBAN = model.SourceIBAN;
-                var destinationIBAN = model.DestinationIBAN;
-                var intermediaryIBAN = (string?)value;
-
-                if (!string.IsNullOrEmpty(sourceIBAN) &&
-                    !string.IsNullOrEmpty(destinationIBAN) &&
-                    sourceIBAN.Length >= 2 &&
-                    destinationIBAN.Length >= 2 &&
-                    sourceIBAN[..2] != destinationIBAN[..2])
-                {
-                    if (string.IsNullOrEmpty(intermediaryIBAN))
-                    {
-                        return new ValidationResult("IBAN requerido");
-                    }
-                    else if (model.IntermediaryIBAN!.Length != 29)
-                    {
-                        return new ValidationResult("IBAN inválido");
-                    }
-                }
-            }
-
-            return ValidationResult.Success;
-        }
-    }
-
-    public class RequiredIfPropertyPrefixDiffersAttribute(string errorMessage) : ValidationAttribute
-    {
-        public new string ErrorMessage { get; set; } = errorMessage;
-
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-        {
-            var model = (PaymentDTO)validationContext.ObjectInstance;
-
-            if (model != null)
-            {
-                var sourceIBAN = model.SourceIBAN;
-                var destinationIBAN = model.DestinationIBAN;
-                var property = (string?)value;
-
-                if (!string.IsNullOrEmpty(sourceIBAN) &&
-                    !string.IsNullOrEmpty(destinationIBAN) &&
-                    sourceIBAN.Length >= 2 &&
-                    destinationIBAN.Length >= 2 &&
-                    sourceIBAN[..2] != destinationIBAN[..2] &&
-                    string.IsNullOrEmpty(property))
-                {
-                    return new ValidationResult(ErrorMessage);
-
-                }
-            }
-
-            return ValidationResult.Success;
-        }
-    }
-
-    
 }

@@ -20,14 +20,12 @@ namespace AtmiraPayNet.Server.Services
             {
                 string? userId = _tokenService.GetCurrentUserId();
 
-                var responseValidation = await ValidatePaymentDataAndUser(userId, request);
-
-                if (responseValidation.StatusCode != StatusCodes.Status200OK)
+                if (userId == null)
                 {
                     return new ResponseDTO<Payment>
                     {
-                        StatusCode = responseValidation.StatusCode,
-                        Message = responseValidation.Message
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "No autorizado"
                     };
                 }
 
@@ -35,9 +33,9 @@ namespace AtmiraPayNet.Server.Services
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId!,
-                    SourceAccountId = responseValidation.Value.Item1!.Id,
-                    DestinationAccountId = responseValidation.Value.Item2!.Id,
-                    IntermediaryAccountId = responseValidation.Value.Item3?.Id,
+                    SourceAccount = new BankAccount(request.SourceIBAN!, request.SourceBankName!, request.SourceBankCountry!),
+                    DestinationAccount = new BankAccount(request.DestinationIBAN!, request.DestinationBankName!, request.DestinationBankCountry!),
+                    IntermediaryAccount = request.IntermediaryIBAN != null ? new BankAccount(request.IntermediaryIBAN!, request.IntermediaryBankName!, request.IntermediaryBankCountry!) : null,
                     Amount = request.Amount,
                     Status = request.Status,
                     Address = new Address(request.Number!, request.Street!, request.City!, request.Country!, request.PostalCode!)
@@ -45,8 +43,6 @@ namespace AtmiraPayNet.Server.Services
 
                 var createdPayment = _context.Payments.Add(payment).Entity;
                 await _context.SaveChangesAsync();
-
-                createdPayment = PaymentIncludes(createdPayment);
 
                 await CreatePaymentLetter(createdPayment);
 
@@ -73,29 +69,17 @@ namespace AtmiraPayNet.Server.Services
             {
                 string? userId = _tokenService.GetCurrentUserId();
 
-                var responseValidation = await ValidatePaymentDataAndUser(userId, request);
 
-                if (responseValidation.StatusCode != StatusCodes.Status200OK)
+                if (userId == null)
                 {
                     return new ResponseDTO<Payment>
                     {
-                        StatusCode = responseValidation.StatusCode,
-                        Message = responseValidation.Message
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "No autorizado"
                     };
                 }
 
-                Guid? paymentId = id;
-
-                if (paymentId == null)
-                {
-                    return new ResponseDTO<Payment>
-                    {
-                        StatusCode = StatusCodes.Status400BadRequest,
-                        Message = "No se ha proporcionado el identificador de la transacción"
-                    };
-                }
-
-                var payment = await _context.Payments.Where(p => p.Id == paymentId).FirstOrDefaultAsync();
+                var payment = await _context.Payments.Where(p => p.Id == id).FirstOrDefaultAsync();
 
                 if (payment == null)
                 {
@@ -122,9 +106,9 @@ namespace AtmiraPayNet.Server.Services
                     };
                 }
 
-                payment.SourceAccountId = responseValidation.Value.Item1!.Id;
-                payment.DestinationAccountId = responseValidation.Value.Item2!.Id;
-                payment.IntermediaryAccountId = responseValidation.Value.Item3?.Id;
+                payment.SourceAccount = new BankAccount(request.SourceIBAN!, request.SourceBankName!, request.SourceBankCountry!);
+                payment.DestinationAccount = new BankAccount(request.DestinationIBAN!, request.DestinationBankName!, request.DestinationBankCountry!);
+                payment.IntermediaryAccount = request.IntermediaryIBAN != null ? new BankAccount(request.IntermediaryIBAN!, request.IntermediaryBankName!, request.IntermediaryBankCountry!) : null;
                 payment.Amount = request.Amount;
                 payment.Status = request.Status;
                 payment.Address = new Address(request.Number!, request.Street!, request.City!, request.Country!, request.PostalCode!);
@@ -132,7 +116,7 @@ namespace AtmiraPayNet.Server.Services
                 var updatedPayment = _context.Payments.Update(payment).Entity;
                 await _context.SaveChangesAsync();
 
-                updatedPayment = PaymentIncludes(updatedPayment);
+                _context.Entry(updatedPayment).Reference(p => p.User).Load();
 
                 await CreatePaymentLetter(updatedPayment);
 
@@ -153,92 +137,6 @@ namespace AtmiraPayNet.Server.Services
             }
         }
 
-        private async Task<ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>> ValidatePaymentDataAndUser(string? userId, PaymentDTO request)
-        {
-            if (userId == null)
-            {
-                return new ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>
-                {
-                    StatusCode = StatusCodes.Status401Unauthorized,
-                    Message = "No autorizado"
-                };
-            }
-
-            BankAccount? sourceAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.SourceIBAN!));
-
-            if (sourceAccount == null)
-            {
-                return new ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>
-                {
-                    StatusCode = StatusCodes.Status204NoContent,
-                    Message = "No existe la cuenta de origen",
-                };
-            }
-
-            BankAccount? destinationAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.DestinationIBAN!));
-
-            if (destinationAccount == null)
-            {
-                return new ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>
-                {
-                    StatusCode = StatusCodes.Status204NoContent,
-                    Message = "No existe la cuenta de destino",
-                };
-            }
-
-            BankAccount? intermediaryAccount = null;
-
-            if (request.IntermediaryIBAN != null)
-            {
-                intermediaryAccount = await _context.BankAccounts.FirstOrDefaultAsync(b => b.IBAN == new IBAN(request.IntermediaryIBAN));
-
-                if (intermediaryAccount == null && request.IntermediaryIBAN != null)
-                {
-                    return new ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>
-                    {
-                        StatusCode = StatusCodes.Status204NoContent,
-                        Message = "No existe la cuenta intermediaria",
-                    };
-                }
-            }
-
-            return new ResponseDTO<(BankAccount?, BankAccount?, BankAccount?)>
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = "Los datos de la transacción son correctos",
-                Value = (sourceAccount, destinationAccount, intermediaryAccount)
-            };
-        }
-
-        private Payment PaymentIncludes(Payment payment)
-        {
-            _context.Entry(payment)
-                .Reference(p => p.SourceAccount)
-                .Query()
-                .Include(sa => sa.Bank)
-                .Load();
-
-            _context.Entry(payment)
-                .Reference(p => p.DestinationAccount)
-                .Query()
-                .Include(da => da.Bank)
-                .Load();
-
-            if (payment.IntermediaryAccount != null)
-            {
-                _context.Entry(payment)
-                    .Reference(p => p.IntermediaryAccount)
-                    .Query()
-                    .Include(ia => ia.Bank)
-                    .Load();
-            }
-
-            _context.Entry(payment)
-                .Reference(p => p.User)
-                .Load();
-
-            return payment;
-        }
 
         private async Task CreatePaymentLetter(Payment payment)
         {
@@ -250,12 +148,12 @@ namespace AtmiraPayNet.Server.Services
                     { "USER_ID", payment.UserId.ToString() },
                     { "USER_FULLNAME", payment.User!.FullName },
                     { "USER_USERNAME", payment.User.UserName! },
-                    { "SOURCE_IBAN", payment.SourceAccount!.IBAN.Value },
-                    { "SOURCE_BANK_NAME", payment.SourceAccount.Bank!.Name },
-                    { "DESTINATION_IBAN", payment.DestinationAccount!.IBAN.Value },
-                    { "DESTINATION_BANK_NAME", payment.DestinationAccount.Bank!.Name },
-                    { "INTERMEDIARY_IBAN", payment.IntermediaryAccount?.IBAN.Value ?? "" },
-                    { "INTERMEDIARY_BANK_NAME", payment.IntermediaryAccount?.Bank!.Name ?? "" },
+                    { "SOURCE_IBAN", payment.SourceAccount!.Iban },
+                    { "SOURCE_BANK_NAME", payment.SourceAccount!.BankName },
+                    { "DESTINATION_IBAN", payment.DestinationAccount!.Iban },
+                    { "DESTINATION_BANK_NAME", payment.DestinationAccount!.BankName },
+                    { "INTERMEDIARY_IBAN", payment.IntermediaryAccount?.Iban ?? "" },
+                    { "INTERMEDIARY_BANK_NAME", payment.IntermediaryAccount?.BankName ?? "" },
                     { "AMOUNT", payment.Amount.ToString() },
                     { "ADDRESS", payment.Address.ToString()! }
                 };
@@ -294,14 +192,7 @@ namespace AtmiraPayNet.Server.Services
                     };
                 }
 
-                var payment = await _context.Payments.Where(p => p.Id == id)
-                                                     .Include(p => p.SourceAccount)
-                                                     .Include(p => p.SourceAccount!.Bank)
-                                                     .Include(p => p.DestinationAccount)
-                                                     .Include(p => p.DestinationAccount!.Bank)
-                                                     .Include(p => p.IntermediaryAccount)
-                                                     .Include(p => p.IntermediaryAccount!.Bank)
-                                                     .FirstOrDefaultAsync();
+                var payment = await _context.Payments.Where(p => p.Id == id).FirstOrDefaultAsync();
 
                 if (payment == null)
                 {
@@ -323,18 +214,20 @@ namespace AtmiraPayNet.Server.Services
                 PaymentDTO paymentDTO = new()
                 {
                     Amount = payment.Amount,
-                    SourceIBAN = payment.SourceAccount!.IBAN.Value,
-                    SourceBankName = payment.SourceAccount.Bank!.Name,
-                    SourceBankCountry = payment.SourceAccount.Bank!.CountryName,
+                    SourceIBAN = payment.SourceAccount!.Iban,
+                    SourceBankName = payment.SourceAccount.BankName,
+                    SourceBankCountry = payment.SourceAccount.BankCountry,
                     PostalCode = payment.Address.PostalCode,
                     Street = payment.Address.Street,
+                    City = payment.Address.City,
+                    Country = payment.Address.Country,
                     Number = payment.Address.Number,
-                    DestinationIBAN = payment.DestinationAccount!.IBAN.Value,
-                    DestinationBankName = payment.DestinationAccount.Bank!.Name,
-                    DestinationBankCountry = payment.DestinationAccount.Bank.CountryName,
-                    IntermediaryIBAN = payment.IntermediaryAccount?.IBAN.Value,
-                    IntermediaryBankName = payment.IntermediaryAccount?.Bank?.Name,
-                    IntermediaryBankCountry = payment.IntermediaryAccount?.Bank?.CountryName,
+                    DestinationIBAN = payment.DestinationAccount!.Iban,
+                    DestinationBankName = payment.DestinationAccount.BankName,
+                    DestinationBankCountry = payment.DestinationAccount.BankCountry,
+                    IntermediaryIBAN = payment.IntermediaryAccount?.Iban,
+                    IntermediaryBankName = payment.IntermediaryAccount?.BankName,
+                    IntermediaryBankCountry = payment.IntermediaryAccount?.BankCountry,
                     Status = payment.Status
                 };
 
@@ -370,13 +263,7 @@ namespace AtmiraPayNet.Server.Services
                     };
                 }
 
-                var payments = await _context.Payments
-                    .Where(p => p.UserId == userId)
-                    .Include(p => p.SourceAccount)
-                    .Include(p => p.SourceAccount!.Bank)
-                    .Include(p => p.DestinationAccount)
-                    .Include(p => p.DestinationAccount!.Bank)
-                    .ToListAsync();
+                var payments = await _context.Payments.Where(p => p.UserId == userId).ToListAsync();
 
                 var paymentDTOs = new List<SimplePaymentDTO>();
 
@@ -387,9 +274,9 @@ namespace AtmiraPayNet.Server.Services
 
                     CurrencyDTO? currencyDTO = null;
 
-                    if (!currencies.TryGetValue(payment.SourceAccount!.Bank!.CountryName, out CurrencyDTO? value))
+                    if (!currencies.TryGetValue(payment.SourceAccount!.BankCountry, out CurrencyDTO? value))
                     {
-                        var responseCurrency = await _restCountriesService.GetCurrencyByCountryName(payment.SourceAccount!.Bank!.CountryName);
+                        var responseCurrency = await _restCountriesService.GetCurrencyByCountryName(payment.SourceAccount!.BankCountry);
 
                         if (responseCurrency.StatusCode != StatusCodes.Status200OK)
                         {
@@ -402,7 +289,7 @@ namespace AtmiraPayNet.Server.Services
 
                         currencyDTO = responseCurrency.Value!;
 
-                        currencies.Add(payment.SourceAccount!.Bank!.CountryName, currencyDTO);
+                        currencies.Add(payment.SourceAccount!.BankCountry, currencyDTO);
                     }
                     else
                     {
@@ -413,8 +300,8 @@ namespace AtmiraPayNet.Server.Services
                     paymentDTOs.Add(new SimplePaymentDTO
                     {
                         Id = payment.Id,
-                        SourceBankName = payment.SourceAccount!.Bank!.Name,
-                        DestinationBankName = payment.DestinationAccount!.Bank!.Name,
+                        SourceBankName = payment.SourceAccount!.BankName,
+                        DestinationBankName = payment.DestinationAccount!.BankName,
                         Amount = payment.Amount,
                         Currency = currencyDTO,
                         Status = payment.Status
@@ -456,31 +343,6 @@ namespace AtmiraPayNet.Server.Services
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Carta de pago encontrada",
                 Value = payment.PaymentLetter.PDF
-            });
-        }
-
-        public Task<ResponseDTO<BankDTO>> GetBankByIBAN(string iban)
-        {
-            var bank = _context.BankAccounts.Include(b => b.Bank).FirstOrDefault(b => b.IBAN == new IBAN(iban))?.Bank;
-
-            if (bank == null)
-            {
-                return Task.FromResult(new ResponseDTO<BankDTO>
-                {
-                    StatusCode = StatusCodes.Status204NoContent,
-                    Message = "No se ha encontrado el banco"
-                });
-            }
-
-            return Task.FromResult(new ResponseDTO<BankDTO>
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = "Banco encontrado",
-                Value = new BankDTO
-                {
-                    Name = bank.Name,
-                    CountryName = bank.CountryName
-                }
             });
         }
     }

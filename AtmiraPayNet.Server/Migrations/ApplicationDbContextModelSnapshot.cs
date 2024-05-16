@@ -22,45 +22,6 @@ namespace AtmiraPayNet.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AtmiraPayNet.Server.Models.Bank", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CountryName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Banks");
-                });
-
-            modelBuilder.Entity("AtmiraPayNet.Server.Models.BankAccount", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IBAN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.ToTable("BankAccounts");
-                });
-
             modelBuilder.Entity("AtmiraPayNet.Server.Models.Payment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -70,16 +31,7 @@ namespace AtmiraPayNet.Server.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("DestinationAccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("IntermediaryAccountId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("PaymentLetterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SourceAccountId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
@@ -90,12 +42,6 @@ namespace AtmiraPayNet.Server.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DestinationAccountId");
-
-                    b.HasIndex("IntermediaryAccountId");
-
-                    b.HasIndex("SourceAccountId");
 
                     b.HasIndex("UserId");
 
@@ -344,36 +290,8 @@ namespace AtmiraPayNet.Server.Migrations
                     b.HasDiscriminator().HasValue("User");
                 });
 
-            modelBuilder.Entity("AtmiraPayNet.Server.Models.BankAccount", b =>
-                {
-                    b.HasOne("AtmiraPayNet.Server.Models.Bank", "Bank")
-                        .WithMany("BankAccounts")
-                        .HasForeignKey("BankId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Bank");
-                });
-
             modelBuilder.Entity("AtmiraPayNet.Server.Models.Payment", b =>
                 {
-                    b.HasOne("AtmiraPayNet.Server.Models.BankAccount", "DestinationAccount")
-                        .WithMany("DestinationPayments")
-                        .HasForeignKey("DestinationAccountId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("AtmiraPayNet.Server.Models.BankAccount", "IntermediaryAccount")
-                        .WithMany("IntermediaryPayments")
-                        .HasForeignKey("IntermediaryAccountId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("AtmiraPayNet.Server.Models.BankAccount", "SourceAccount")
-                        .WithMany("SourcePayments")
-                        .HasForeignKey("SourceAccountId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("AtmiraPayNet.Server.Models.User", "User")
                         .WithMany("Payments")
                         .HasForeignKey("UserId")
@@ -384,6 +302,10 @@ namespace AtmiraPayNet.Server.Migrations
                         {
                             b1.Property<Guid>("PaymentId")
                                 .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
@@ -410,14 +332,97 @@ namespace AtmiraPayNet.Server.Migrations
                                 .HasForeignKey("PaymentId");
                         });
 
+                    b.OwnsOne("AtmiraPayNet.Server.Models.BankAccount", "DestinationAccount", b1 =>
+                        {
+                            b1.Property<Guid>("PaymentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("BankCountry")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("BankName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Iban")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("PaymentId");
+
+                            b1.ToTable("Payments");
+
+                            b1.ToJson("DestinationAccount");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PaymentId");
+                        });
+
+                    b.OwnsOne("AtmiraPayNet.Server.Models.BankAccount", "IntermediaryAccount", b1 =>
+                        {
+                            b1.Property<Guid>("PaymentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("BankCountry")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("BankName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Iban")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("PaymentId");
+
+                            b1.ToTable("Payments");
+
+                            b1.ToJson("IntermediaryAccount");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PaymentId");
+                        });
+
+                    b.OwnsOne("AtmiraPayNet.Server.Models.BankAccount", "SourceAccount", b1 =>
+                        {
+                            b1.Property<Guid>("PaymentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("BankCountry")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("BankName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Iban")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("PaymentId");
+
+                            b1.ToTable("Payments");
+
+                            b1.ToJson("SourceAccount");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PaymentId");
+                        });
+
                     b.Navigation("Address")
                         .IsRequired();
 
-                    b.Navigation("DestinationAccount");
+                    b.Navigation("DestinationAccount")
+                        .IsRequired();
 
                     b.Navigation("IntermediaryAccount");
 
-                    b.Navigation("SourceAccount");
+                    b.Navigation("SourceAccount")
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -482,20 +487,6 @@ namespace AtmiraPayNet.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("AtmiraPayNet.Server.Models.Bank", b =>
-                {
-                    b.Navigation("BankAccounts");
-                });
-
-            modelBuilder.Entity("AtmiraPayNet.Server.Models.BankAccount", b =>
-                {
-                    b.Navigation("DestinationPayments");
-
-                    b.Navigation("IntermediaryPayments");
-
-                    b.Navigation("SourcePayments");
                 });
 
             modelBuilder.Entity("AtmiraPayNet.Server.Models.Payment", b =>

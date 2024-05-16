@@ -15,11 +15,6 @@ namespace AtmiraPayNet.Server.Controllers
         {
             var response = await _paymentService.CreatePayment(request);
 
-            if (response.StatusCode == 201)
-            {
-                return StatusCode(response.StatusCode, response.Value);
-            }
-
             return StatusCode(response.StatusCode, new { response.Message });
         }
 
@@ -27,11 +22,6 @@ namespace AtmiraPayNet.Server.Controllers
         async public Task<IActionResult> UpdatePayment([FromQuery] Guid id, [FromBody] PaymentDTO request)
         {
             var response = await _paymentService.UpdatePayment(id, request);
-
-            if (response.StatusCode == 200)
-            {
-                return StatusCode(response.StatusCode, response.Value);
-            }
 
             return StatusCode(response.StatusCode, new { response.Message });
         }
@@ -68,20 +58,6 @@ namespace AtmiraPayNet.Server.Controllers
         async public Task<IActionResult> GetPaymentPDF([FromQuery] Guid id)
         {
             var response = await _paymentService.GetPaymentPDF(id);
-
-            if (response.StatusCode == 200)
-            {
-                return StatusCode(response.StatusCode, response.Value);
-            }
-
-            return StatusCode(response.StatusCode, new { response.Message });
-        }
-
-        [HttpGet]
-        [Route("bank")]
-        async public Task<IActionResult> GetBankByIBAN([FromQuery] string iban)
-        {
-            var response = await _paymentService.GetBankByIBAN(iban);
 
             if (response.StatusCode == 200)
             {

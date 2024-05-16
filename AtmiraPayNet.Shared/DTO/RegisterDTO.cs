@@ -5,6 +5,7 @@ namespace AtmiraPayNet.Shared.DTO
     public class RegisterDTO
     {
         [Required(ErrorMessage = "El nombre de usuario es requerido")]
+        [StringLength(50, ErrorMessage = "El nombre de usuario no puede exceder los 50 caracteres")]
         [Display(Name = "Nombre de Usuario")]
         public string? UserName { get; set; }
 

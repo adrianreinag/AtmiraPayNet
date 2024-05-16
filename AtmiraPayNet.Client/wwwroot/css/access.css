@@ -39,7 +39,7 @@
         transition: border-color 0.3s ease;
     }
 
-.btn,
+.btn-custom,
 .text-btn {
     display: block;
     width: 100%; /* Establecer la anchura al 100% */
@@ -52,14 +52,14 @@
     text-decoration: none; /* Quitar subrayado en el enlace */
 }
 
-.btn {
+.btn-custom {
     background-color: rgb(222, 29, 112);
     color: white;
     border: none;
     margin-top: 40px; /* Ajustar el margen superior según sea necesario */
 }
 
-    .btn:hover {
+    .btn-custom:hover {
         background-color: rgb(242, 49, 132);
         color: white;
     }

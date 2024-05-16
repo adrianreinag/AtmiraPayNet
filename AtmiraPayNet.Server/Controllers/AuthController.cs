@@ -6,15 +6,15 @@ namespace AtmiraPayNet.Server.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController(IAuthService userService) : ControllerBase
+    public class AuthController(IAuthService authService) : ControllerBase
     {
-        private readonly IAuthService _userService = userService;
+        private readonly IAuthService _authService = authService;
 
         [HttpPost]
         [Route("register")]
         async public Task<IActionResult> Register([FromBody] RegisterDTO request)
         {
-            var response = await _userService.Register(request);
+            var response = await _authService.Register(request);
 
             return StatusCode(response.StatusCode, new { token = response.Value, response.Message });
         }
@@ -23,7 +23,7 @@ namespace AtmiraPayNet.Server.Controllers
         [Route("login")]
         async public Task<IActionResult> Login([FromBody] LoginDTO request)
         {
-            var response = await _userService.Login(request);
+            var response = await _authService.Login(request);
 
             return StatusCode(response.StatusCode, new { token = response.Value, response.Message });
         }

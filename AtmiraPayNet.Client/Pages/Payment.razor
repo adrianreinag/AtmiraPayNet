@@ -7,11 +7,13 @@
 @using AtmiraPayNet.Shared.Utils
 @using System.Text.RegularExpressions
 @using System.Globalization
+@using CurrieTechnologies.Razor.SweetAlert2
 
 @inject IPaymentService paymentService;
 @inject IRESTCountriesService countriesService;
 @inject NavigationManager NavigationManager;
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject SweetAlertService Swal;
 
 <PageTitle>Payment</PageTitle>
 
@@ -22,7 +24,7 @@
     <div class="payments-container">
         <h3 class="title">@title</h3>
 
-        <EditForm Model="payment" OnValidSubmit="OnValidSubmit">
+        <EditForm Model="payment">
             <DataAnnotationsValidator></DataAnnotationsValidator>
 
             <div class="row mb-5">
@@ -35,7 +37,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.SourceIBAN" EditMode="@editMode" OnChange="ChangeSourceIBAN" />
+                                <InputIBAN @bind-Value="payment.SourceIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
                                 <ValidationMessage For="@(() => payment.SourceIBAN)"></ValidationMessage>
                             </div>
 
@@ -47,7 +49,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="OnSourceCountrySelected" disabled="@(!editMode)">
+                                <select class="form-control" @onchange="@(e => CountrySelected(e, "source"))" disabled="@(!editMode)">
                                     @if (createMode)
                                     {
                                         @if (payment.SourceBankCountry == null)
@@ -90,7 +92,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.DestinationIBAN" EditMode="@editMode" OnChange="ChangeDestinationIBAN" />
+                                <InputIBAN @bind-Value="payment.DestinationIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
                                 <ValidationMessage For="@(() => payment.DestinationIBAN)"></ValidationMessage>
                             </div>
 
@@ -102,7 +104,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="OnDestinationCountrySelected" disabled="@(!editMode)">
+                                <select class="form-control" @onchange="@(e => CountrySelected(e, "destination"))" disabled="@(!editMode)">
                                     @if (createMode)
                                     {
                                         <option value="" disabled selected>Selecciona una opción</option>
@@ -135,7 +137,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" OnChange="IntermediaryIBANComplete" />
+                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" OnChange="SetIntermediaryDisabled" />
                                 <ValidationMessage For="@(() => payment.IntermediaryIBAN)"></ValidationMessage>
                             </div>
 
@@ -147,7 +149,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="OnIntermediaryCountrySelected" disabled="@(!editMode || intermediaryDisabled)">
+                                <select class="form-control" @onchange="@(e => CountrySelected(e, "intermediary"))" disabled="@(!editMode || intermediaryDisabled)">
                                     @if (createMode)
                                     {
                                         <option value="" disabled selected>Selecciona una opción</option>
@@ -216,7 +218,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="mx-2 d-flex justify-content-between align-items-end">
                 <div class="mb-3 p-0">
                     <label class="form-label">Cantidad</label>
@@ -224,13 +225,32 @@
                     <ValidationMessage For="@(() => payment.Amount)"></ValidationMessage>
                 </div>
 
-
-                <div>
-                    <a class="text-btn" href="payments">Volver al visor de pagos</a>
-                    <button class="btn btn-create" type="submit">@textBtn</button>
-                </div>
+                @if (createMode)
+                {
+                    <div>
+                        <a class="text-btn" href="payments">Volver al visor de pagos</a>
+                        <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Crear</button>
+                        <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
+                    </div>
+                }
+                else
+                {
+                    if (editMode)
+                    {
+                        <div>
+                            <a class="text-btn" href="payments">Volver al visor de pagos</a>
+                            <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Guardar</button>
+                            <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <a class="text-btn" href="payments">Volver al visor de pagos</a>
+                        </div>
+                    }
+                }
             </div>
-
         </EditForm>
     </div>
 </div>
@@ -239,7 +259,6 @@
     [Parameter] public Guid id { get; set; } = Guid.Empty;
 
     string title = string.Empty;
-    string textBtn = string.Empty;
     bool editMode;
     bool createMode;
 
@@ -271,7 +290,6 @@
         {
             payment = await paymentService.GetPaymentById(id);
             title = "Actualizar pago";
-            textBtn = "Actualizar";
             if (payment.Status == Status.Draft)
             {
                 editMode = true;
@@ -283,11 +301,14 @@
 
             sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
             destinationCurrency = GetCurrencyByCountryName(payment.DestinationBankCountry!);
+            if (payment.IntermediaryBankCountry != null)
+            {
+                intermediaryCurrency = GetCurrencyByCountryName(payment.IntermediaryBankCountry!);
+            }
         }
         else
         {
             title = "Crear pago";
-            textBtn = "Crear";
             editMode = true;
         }
     }
@@ -309,80 +330,23 @@
         }
     }
 
-    private async Task ChangeSourceIBAN(string iban)
+    private void CountrySelected(ChangeEventArgs e, string account)
     {
-        iban = iban.Replace(" ", "");
-        if (iban.Length == 24)
+        if (account == "source")
         {
-            var bankData = await paymentService.GetBankByIBAN(iban);
-
-            if (bankData == null)
-            {
-                return;
-            }
-
-            payment.SourceBankName = bankData.Name;
-            payment.SourceBankCountry = bankData.CountryName;
+            payment.SourceBankCountry = e.Value!.ToString();
             sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
         }
-
-        SetIntermediaryDisabled();
-    }
-
-    private async Task ChangeDestinationIBAN(string iban)
-    {
-        iban = iban.Replace(" ", "");
-        if (iban.Length == 24)
+        else if (account == "destination")
         {
-            var bankData = await paymentService.GetBankByIBAN(iban);
-
-            if (bankData == null)
-            {
-                return;
-            }
-
-            payment.DestinationBankName = bankData.Name;
-            payment.DestinationBankCountry = bankData.CountryName;
+            payment.DestinationBankCountry = e.Value!.ToString();
             destinationCurrency = GetCurrencyByCountryName(payment.DestinationBankCountry!);
         }
-
-        SetIntermediaryDisabled();
-    }
-
-    private async Task IntermediaryIBANComplete(string iban)
-    {
-        iban = iban.Replace(" ", "");
-        if (iban.Length == 24)
+        else if (account == "intermediary")
         {
-            var bankData = await paymentService.GetBankByIBAN(iban);
-
-            if (bankData == null)
-            {
-                return;
-            }
-
-            payment.IntermediaryBankName = bankData.Name;
-            payment.IntermediaryBankCountry = bankData.CountryName;
+            payment.IntermediaryBankCountry = e.Value!.ToString();
             intermediaryCurrency = GetCurrencyByCountryName(payment.IntermediaryBankCountry!);
         }
-    }
-
-    private void OnSourceCountrySelected(ChangeEventArgs e)
-    {
-        payment.SourceBankCountry = e.Value!.ToString();
-        sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
-    }
-
-    private void OnDestinationCountrySelected(ChangeEventArgs e)
-    {
-        payment.DestinationBankCountry = e.Value!.ToString();
-        destinationCurrency = GetCurrencyByCountryName(payment.DestinationBankCountry!);
-    }
-
-    private void OnIntermediaryCountrySelected(ChangeEventArgs e)
-    {
-        payment.IntermediaryBankCountry = e.Value!.ToString();
-        intermediaryCurrency = GetCurrencyByCountryName(payment.IntermediaryBankCountry!);
     }
 
     private string GetCurrencyByCountryName(string countryName)
@@ -404,15 +368,32 @@
         return currency.Name ?? "No se ha encontrado la divisa";
     }
 
-    private async Task OnValidSubmit()
+    private async Task OnValidSubmit(Status status)
     {
-        // if (id != Guid.Empty)
-        // {
-        //     await paymentService.UpdatePayment(id, payment);
-        // }
-        // else
-        // {
-        //     await paymentService.CreatePayment(payment);
-        // }
+        payment.Status = status;
+
+        bool createdOrUpdated = await (createMode ? paymentService.CreatePayment(payment) : paymentService.UpdatePayment(id, payment));
+
+        if (createdOrUpdated)
+        {
+            if (status == Status.Draft)
+            {
+                NavigationManager.NavigateTo("payments");
+            }
+            else
+            {
+                editMode = false;
+            }
+        }
+        else
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Algo salió mal",
+                    Text = "Por favor, revisa los datos e inténtalo de nuevo",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowConfirmButton = false
+                });
+        }
     }
 }

@@ -22,84 +22,84 @@
 
 <div class="page">
 
-@if (simplePaymentList == null)
-{
-    <div class="loading-container">
-        <img src="assets/loading.svg" alt="loading" class="loading" />
-    </div>
-}
-else
-{
-    <div class="payments-container">
-        <h3 class="title">Lista de pagos</h3>
+    @if (simplePaymentList == null)
+    {
+        <div class="loading-container">
+            <img src="assets/loading.svg" alt="loading" class="loading" />
+        </div>
+    }
+    else
+    {
+        <div class="payments-container">
+            <h3 class="title">Lista de pagos</h3>
 
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Banco de origen</th>
-                    <th>Banco de destino</th>
-                    <th>Cantidad</th>
-                    <th>Divisa</th>
-                    <th>Estado</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Banco de origen</th>
+                        <th>Banco de destino</th>
+                        <th>Cantidad</th>
+                        <th>Divisa</th>
+                        <th>Estado</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                @foreach (var item in simplePaymentList)
-                {
-                    <tr class="@(item.Status == Status.Generated ? "generated-row" : "")">
-                        <td>@item.SourceBankName</td>
-                        <td>@item.DestinationBankName</td>
-                        <td>@item.Amount</td>
-                        <td>@item.Currency.Symbol (@item.Currency.Name)</td>
-                        @if (item.Status == Status.Draft)
-                        {
-                            <td>Borrador</td>
-                        }
-                        else
-                        {
-                            <td>Cerrado</td>
-                        }
-
-                        <td>
-                            @if (item.Status == Status.Generated)
+                    @foreach (var item in simplePaymentList)
+                    {
+                        <tr class="@(item.Status == Status.Generated ? "generated-row" : "")">
+                            <td>@item.SourceBankName</td>
+                            <td>@item.DestinationBankName</td>
+                            <td>@item.Amount</td>
+                            <td>@item.Currency.Symbol (@item.Currency.Name)</td>
+                            @if (item.Status == Status.Draft)
                             {
-                                <button class="btn btn-icon btn-primary" @onclick="() => RedirectToPayment(item.Id)">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                                <td>Borrador</td>
                             }
                             else
                             {
-                                <button class="btn btn-icon btn-success" @onclick="() => RedirectToPayment(item.Id)">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                                <td>Cerrado</td>
                             }
-                        </td>
-                        <td>
-                            @if (item.Status == Status.Generated)
-                            {
+
+                            <td>
+                                @if (item.Status == Status.Generated)
+                                {
+                                    <button class="btn btn-icon btn-primary" @onclick="() => RedirectToPayment(item.Id)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-icon btn-success" @onclick="() => RedirectToPayment(item.Id)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Status == Status.Generated)
+                                {
                                     <button class="btn btn-icon btn-secondary" @onclick="(() => DownloadPDF(item.Id))">
-                                    <i class="bi bi-download"></i>
-                                </button>
-                            }
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                }
 
+                            </td>
+
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="7" align="center">
+                            <a class="btn btn-create" href="payment">Create payment</a>
                         </td>
-
                     </tr>
-                }
-                <tr>
-                    <td colspan="7" align="center">
-                        <a class="btn btn-create" href="payment">Create payment</a>
-                    </td>
-                </tr>
 
-            </tbody>
-        </table>
-    </div>
-}
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
 <style>
@@ -150,22 +150,28 @@ else
     }
 
     .table {
-        border-collapse: collapse;
         width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
     }
 
         .table th, .table td {
-            border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            font-size: 18px;
+            color: #fff;
+            background-color: #212738;
+            line-height: 1.2;
+            font-weight: unset;
         }
 
         .table tr:not(:last-child):hover {
-            background-color: #ddd;
+            background-color: #ccc;
         }
 
 
@@ -205,10 +211,8 @@ else
             border: 0;
         }
 
-
-
     .generated-row {
-        background-color: #ccc;
+        background-color: #bbb;
     }
 
 </style>

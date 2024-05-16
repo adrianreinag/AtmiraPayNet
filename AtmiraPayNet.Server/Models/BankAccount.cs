@@ -1,21 +1,9 @@
 ﻿namespace AtmiraPayNet.Server.Models
 {
-    public class BankAccount
+    public class BankAccount(string iban, string bankName, string bankCountry)
     {
-        // Primary key
-        public required Guid Id { get; set; }
-
-        // Relationships
-        public required Guid BankId { get; set; }
-        public Bank? Bank { get; set; }
-
-        public required List<Payment> SourcePayments { get; set; }
-
-        public required List<Payment> DestinationPayments { get; set; }
-
-        public required List<Payment> IntermediaryPayments { get; set; }
-
-        // Properties
-        public required IBAN IBAN { get; set; }
+        public string Iban { get; set; } = iban;
+        public string BankName { get; set; } = bankName;
+        public string BankCountry { get; set; } = bankCountry;
     }
 }
