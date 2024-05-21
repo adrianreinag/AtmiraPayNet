@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AtmiraPayNet.Server.Services
 {
-    public class PaymentService(ApplicationDbContext context, ITokenService tokenService, IPDFService pdfService, IRESTCountriesService restCountriesService) : IPaymentService
+    public class PaymentService(ApplicationDbContext context, ITokenService tokenService, IPDFService pdfService, ICountriesService countriesService) : IPaymentService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ITokenService _tokenService = tokenService;
         private readonly IPDFService _pdfService = pdfService;
-        private readonly IRESTCountriesService _restCountriesService = restCountriesService;
+        private readonly ICountriesService _countriesService = countriesService;
 
         public async Task<ResponseDTO<Payment>> CreatePayment(PaymentDTO request)
         {
@@ -43,6 +43,8 @@ namespace AtmiraPayNet.Server.Services
 
                 var createdPayment = _context.Payments.Add(payment).Entity;
                 await _context.SaveChangesAsync();
+
+                _context.Entry(createdPayment).Reference(p => p.User).Load();
 
                 await CreatePaymentLetter(createdPayment);
 
@@ -276,18 +278,7 @@ namespace AtmiraPayNet.Server.Services
 
                     if (!currencies.TryGetValue(payment.SourceAccount!.BankCountry, out CurrencyDTO? value))
                     {
-                        var responseCurrency = await _restCountriesService.GetCurrencyByCountryName(payment.SourceAccount!.BankCountry);
-
-                        if (responseCurrency.StatusCode != StatusCodes.Status200OK)
-                        {
-                            return new ResponseDTO<List<SimplePaymentDTO>>
-                            {
-                                StatusCode = responseCurrency.StatusCode,
-                                Message = responseCurrency.Message
-                            };
-                        }
-
-                        currencyDTO = responseCurrency.Value!;
+                        currencyDTO = _countriesService.GetCurrencyByCountryName(payment.SourceAccount!.BankCountry);
 
                         currencies.Add(payment.SourceAccount!.BankCountry, currencyDTO);
                     }

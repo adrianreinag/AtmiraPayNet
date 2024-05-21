@@ -10,7 +10,7 @@
 @using CurrieTechnologies.Razor.SweetAlert2
 
 @inject IPaymentService paymentService;
-@inject IRESTCountriesService countriesService;
+@inject ICountriesService countriesService;
 @inject NavigationManager NavigationManager;
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SweetAlertService Swal;
@@ -137,7 +137,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" OnChange="SetIntermediaryDisabled" />
+                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" />
                                 <ValidationMessage For="@(() => payment.IntermediaryIBAN)"></ValidationMessage>
                             </div>
 
@@ -229,7 +229,7 @@
                 {
                     <div>
                         <a class="text-btn" href="payments">Volver al visor de pagos</a>
-                        <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Crear</button>
+                        <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
                         <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
                     </div>
                 }
@@ -239,7 +239,7 @@
                     {
                         <div>
                             <a class="text-btn" href="payments">Volver al visor de pagos</a>
-                            <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Guardar</button>
+                            <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
                             <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
                         </div>
                     }
@@ -247,6 +247,7 @@
                     {
                         <div>
                             <a class="text-btn" href="payments">Volver al visor de pagos</a>
+                            <button class="btn btn-secondary" @onclick="(() => DownloadPDF(id))">Descargar PDF</button>
                         </div>
                     }
                 }
@@ -284,7 +285,7 @@
 
         createMode = id == Guid.Empty;
 
-        countryList = await countriesService.GetCountryList();
+        countryList = countriesService.GetCountryList();
 
         if (!createMode)
         {
@@ -336,16 +337,19 @@
         {
             payment.SourceBankCountry = e.Value!.ToString();
             sourceCurrency = GetCurrencyByCountryName(payment.SourceBankCountry!);
+            payment.SourceBankCCA2 = GetCCA2ByCountryName(payment.SourceBankCountry!);
         }
         else if (account == "destination")
         {
             payment.DestinationBankCountry = e.Value!.ToString();
             destinationCurrency = GetCurrencyByCountryName(payment.DestinationBankCountry!);
+            payment.DestinationBankCCA2 = GetCCA2ByCountryName(payment.DestinationBankCountry!);
         }
         else if (account == "intermediary")
         {
             payment.IntermediaryBankCountry = e.Value!.ToString();
             intermediaryCurrency = GetCurrencyByCountryName(payment.IntermediaryBankCountry!);
+            payment.IntermediaryBankCCA2 = GetCCA2ByCountryName(payment.IntermediaryBankCountry!);
         }
     }
 
@@ -368,9 +372,31 @@
         return currency.Name ?? "No se ha encontrado la divisa";
     }
 
+    private string GetCCA2ByCountryName(string countryName)
+    {
+        var country = countryList.FirstOrDefault(c => c.Name.Common == countryName);
+
+        return country?.CCA2 ?? "No se ha encontrado";
+    }
+
     private async Task OnValidSubmit(Status status)
     {
         payment.Status = status;
+
+        if (!payment.IsValid())
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Algo salió mal",
+                Text = "Por favor, revisa los datos e inténtalo de nuevo",
+                Icon = SweetAlertIcon.Warning,
+                ShowConfirmButton = false
+            });
+
+            // TODO: Pintar los errores en rojo en los campos (ValidationAttributes)
+
+            return;
+        }
 
         bool createdOrUpdated = await (createMode ? paymentService.CreatePayment(payment) : paymentService.UpdatePayment(id, payment));
 
@@ -395,5 +421,10 @@
                     ShowConfirmButton = false
                 });
         }
+    }
+
+    private async Task DownloadPDF(Guid id)
+    {
+        await paymentService.DownloadPDF(id);
     }
 }

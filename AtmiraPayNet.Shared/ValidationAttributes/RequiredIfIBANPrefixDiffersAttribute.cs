@@ -24,7 +24,7 @@ namespace AtmiraPayNet.Shared.ValidationAttributes
                     sourceIBAN[..2] != destinationIBAN[..2] &&
                     string.IsNullOrEmpty(intermediaryIBAN))
                 {
-                    return new ValidationResult("IBAN requerido");
+                    return new ValidationResult(ErrorMessage);
                 }
 
             }

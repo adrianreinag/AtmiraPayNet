@@ -10,6 +10,7 @@
     [Parameter]
     public EventCallback OnChange { get; set; }
 
+
     private async Task FormatIBAN(ChangeEventArgs e)
     {
         string iban = e.Value?.ToString()?.ToUpper().Replace(" ", "") ?? "";

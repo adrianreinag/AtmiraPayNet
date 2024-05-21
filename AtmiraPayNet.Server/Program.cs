@@ -34,11 +34,9 @@ builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPDFService, PDFService>();
-builder.Services.AddScoped<IRESTCountriesService, RESTCountriesService>();
-
-builder.Services.AddHttpClient<IRESTCountriesService, RESTCountriesService>();
 
 builder.Services.AddHttpContextAccessor();
 

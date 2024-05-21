@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Reflection.Metadata.Ecma335;
 
 namespace AtmiraPayNet.Client.Services
 {
@@ -47,7 +46,7 @@ namespace AtmiraPayNet.Client.Services
             {
                 var content = await result.Content.ReadAsStringAsync();
 
-                var response = JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
+                var response = JsonConvert.DeserializeObject<Dictionary<string, string>>(content);
 
                 string? token = response?["token"];
 

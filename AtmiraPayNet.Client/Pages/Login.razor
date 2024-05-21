@@ -3,9 +3,11 @@
 @using AtmiraPayNet.Client.Services.Interfaces
 @using AtmiraPayNet.Shared
 @using AtmiraPayNet.Shared.DTO
+@using CurrieTechnologies.Razor.SweetAlert2
 
 @inject IAuthService userService;
 @inject NavigationManager navigation;
+@inject SweetAlertService Swal;
 
 <link rel="stylesheet" href="css/access.css" />
 
@@ -22,19 +24,19 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nombre de usuario</label>
-                        <InputText class="form-control" @bind-Value="login.UserName"></InputText>
+                        <InputText id="UserName" class="form-control" @bind-Value="login.UserName"></InputText>
                         <ValidationMessage For="@(() => login.UserName)"></ValidationMessage>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Contraseña</label>
-                        <InputText class="form-control" @bind-Value="login.Password" type="password"></InputText>
+                        <InputText id="Password" class="form-control" @bind-Value="login.Password" type="password"></InputText>
                         <ValidationMessage For="@(() => login.Password)"></ValidationMessage>
                     </div>
                 </div>
 
             </div>
-            <button class="btn-custom" type="submit">Iniciar Sesión</button>
+            <button id="LoginButton" class="btn-custom" type="submit">Iniciar Sesión</button>
             <a class="text-btn" href="register">Crear cuenta</a>
         </EditForm>
     </div>
@@ -48,6 +50,15 @@
         if (await userService.Login(login))
         {
             navigation.NavigateTo("");
+        }
+        else
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Datos incorrectos",
+                    Icon = SweetAlertIcon.Error,
+                    ShowConfirmButton = false
+                });
         }
     }
 }

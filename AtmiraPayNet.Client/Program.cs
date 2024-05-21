@@ -17,7 +17,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7035") });
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IRESTCountriesService, RESTCountriesService>();
+builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddSweetAlert2();

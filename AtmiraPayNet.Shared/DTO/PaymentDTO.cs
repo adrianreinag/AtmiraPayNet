@@ -14,7 +14,10 @@ namespace AtmiraPayNet.Shared.DTO
         public string? SourceBankName { get; set; }
 
         [Required(ErrorMessage = "País requerido")]
+        [CCA2CountryValidation]
         public string? SourceBankCountry { get; set; }
+
+        public string? SourceBankCCA2 { get; set; }
 
         [Required(ErrorMessage = "Código postal requerido")]
         public string? PostalCode { get; set; }
@@ -44,7 +47,10 @@ namespace AtmiraPayNet.Shared.DTO
         public string? DestinationBankName { get; set; }
 
         [Required(ErrorMessage = "País requerido")]
+        [CCA2CountryValidation]
         public string? DestinationBankCountry { get; set; }
+
+        public string? DestinationBankCCA2 { get; set; }
 
         [RequiredIfIBANPrefixDiffers(ErrorMessage = "IBAN requerido")]
         [IbanValidation]
@@ -54,8 +60,21 @@ namespace AtmiraPayNet.Shared.DTO
         public string? IntermediaryBankName { get; set; }
 
         [RequiredIfIBANPrefixDiffers(ErrorMessage = "País requerido")]
+        [CCA2CountryValidation]
         public string? IntermediaryBankCountry { get; set; }
 
+        public string? IntermediaryBankCCA2 { get; set; }
+
         public Status Status { get; set; }
+
+        public bool IsValid()
+        {
+            var context = new ValidationContext(this, serviceProvider: null, items: null);
+            var results = new List<ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(this, context, results, validateAllProperties: true);
+
+            return isValid;
+        }
     }
 }
