@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AtmiraPayNet.Shared.ValidationAttributes;
 
 namespace AtmiraPayNet.Shared.DTO
 {
@@ -29,6 +30,7 @@ namespace AtmiraPayNet.Shared.DTO
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Nacimiento")]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DateValidationAtributte]
         public DateOnly? DateOfBirth { get; set; }
     }
 }

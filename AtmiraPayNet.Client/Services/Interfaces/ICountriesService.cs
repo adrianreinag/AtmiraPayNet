@@ -4,7 +4,7 @@ namespace AtmiraPayNet.Client.Services.Interfaces
 {
     public interface ICountriesService
     {
-        List<CountryDTO> GetCountryList();
-        string? GetCCA2ByCountryName(string countryName);
+        Task<List<CountryDTO>> GetCountryList();
+        Task<string?> GetCCA2ByCountryName(string countryName);
     }
 }

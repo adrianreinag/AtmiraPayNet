@@ -4,6 +4,6 @@ namespace AtmiraPayNet.Server.Services.Interfaces
 {
     public interface ICountriesService
     {
-        CurrencyDTO GetCurrencyByCountryName(string countryName);
+        Task<CurrencyDTO> GetCurrencyByCountryName(string countryName);
     }
 }

@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="wwwroot\css\home.css" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
 		<PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
 		<PackageReference Include="IbanNet" Version="5.14.0" />

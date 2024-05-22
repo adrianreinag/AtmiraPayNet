@@ -6,6 +6,7 @@
 
 @inject IAuthService userService;
 @inject NavigationManager navigation;
+@inject SweetAlertService Swal;
 
 <link rel="stylesheet" href="css/access.css" />
 
@@ -70,6 +71,15 @@
         if (await userService.Register(register))
         {
             navigation.NavigateTo("");
+        }
+        else
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Datos incorrectos",
+                    Icon = SweetAlertIcon.Error,
+                    ShowConfirmButton = false
+                });
         }
     }
 }

@@ -278,7 +278,7 @@ namespace AtmiraPayNet.Server.Services
 
                     if (!currencies.TryGetValue(payment.SourceAccount!.BankCountry, out CurrencyDTO? value))
                     {
-                        currencyDTO = _countriesService.GetCurrencyByCountryName(payment.SourceAccount!.BankCountry);
+                        currencyDTO = await _countriesService.GetCurrencyByCountryName(payment.SourceAccount!.BankCountry);
 
                         currencies.Add(payment.SourceAccount!.BankCountry, currencyDTO);
                     }

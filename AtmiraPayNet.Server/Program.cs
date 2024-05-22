@@ -38,6 +38,8 @@ builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPDFService, PDFService>();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Configuration.AddJsonFile("appsettings.Development.json");

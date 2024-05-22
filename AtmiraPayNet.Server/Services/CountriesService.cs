@@ -4,42 +4,55 @@ using Newtonsoft.Json.Linq;
 
 namespace AtmiraPayNet.Server.Services
 {
-    public class CountriesService : ICountriesService
+    public class CountriesService(HttpClient http) : ICountriesService
     {
-        private readonly string _countriesFilePath = "Assets/Countries.json";
+        //private readonly string _countriesFilePath = "Assets/Countries.json";
+        private readonly HttpClient _http = http;
 
-        public CurrencyDTO GetCurrencyByCountryName(string countryName)
+        public async Task<CurrencyDTO> GetCurrencyByCountryName(string countryName)
         {
-            var json = File.ReadAllText(_countriesFilePath);
-            var countries = JArray.Parse(json);
+            HttpResponseMessage response = await _http.GetAsync($"https://run.mocky.io/v3/7fe4c4e2-06f7-4803-843b-5e2297308043");
 
-            foreach (var country in countries)
+            if (response.IsSuccessStatusCode)
             {
-                var commonName = country["name"]?["common"]?.ToString();
+                string json = await response.Content.ReadAsStringAsync();
+                //var json = File.ReadAllText(_countriesFilePath);
+                var countries = JArray.Parse(json);
 
-                if (string.Equals(commonName, countryName, StringComparison.OrdinalIgnoreCase))
+                foreach (var country in countries)
                 {
+                    var commonName = country["name"]?["common"]?.ToString();
 
-                    var currency = country["currencies"]?.First;
+                    if (string.Equals(commonName, countryName, StringComparison.OrdinalIgnoreCase))
+                    {
 
-                    if (currency == null)
-                        return new CurrencyDTO
-                        {
-                            Name = "No se encontró la moneda para el país",
-                            Symbol = "N/A"
-                        };
-                    else
-                        return new CurrencyDTO
-                        {
-                            Name = currency?.First?["name"]?.ToString() ?? "Error",
-                            Symbol = currency?.First?["symbol"]?.ToString() ?? "Error"
-                        };
+                        var currency = country["currencies"]?.First;
+
+                        if (currency == null)
+                            return new CurrencyDTO
+                            {
+                                Name = "No se encontró la moneda para el país",
+                                Symbol = "N/A"
+                            };
+                        else
+                            return new CurrencyDTO
+                            {
+                                Name = currency?.First?["name"]?.ToString() ?? "Error",
+                                Symbol = currency?.First?["symbol"]?.ToString() ?? "Error"
+                            };
+                    }
                 }
+
+                return new CurrencyDTO
+                {
+                    Name = "País no encontrado",
+                    Symbol = "N/A"
+                };
             }
 
             return new CurrencyDTO
             {
-                Name = "País no encontrado",
+                Name = "Error al obtener la moneda",
                 Symbol = "N/A"
             };
         }

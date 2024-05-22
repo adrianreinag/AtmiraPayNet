@@ -8,6 +8,7 @@ namespace AtmiraPayNet.Shared.DTO
     {
         [Required(ErrorMessage = "IBAN requerido")]
         [IbanValidation]
+        [SameIBANValidation]
         public string? SourceIBAN { get; set; }
 
         [Required(ErrorMessage = "Banco requerido")]
@@ -41,6 +42,7 @@ namespace AtmiraPayNet.Shared.DTO
 
         [Required(ErrorMessage = "IBAN requerido")]
         [IbanValidation]
+        [SameIBANValidation]
         public string? DestinationIBAN { get; set; }
 
         [Required(ErrorMessage = "Banco requerido")]
@@ -54,6 +56,7 @@ namespace AtmiraPayNet.Shared.DTO
 
         [RequiredIfIBANPrefixDiffers(ErrorMessage = "IBAN requerido")]
         [IbanValidation]
+        [SameIBANValidation]
         public string? IntermediaryIBAN { get; set; }
 
         [RequiredIfIBANPrefixDiffers(ErrorMessage = "Banco requerido")]
@@ -67,14 +70,14 @@ namespace AtmiraPayNet.Shared.DTO
 
         public Status Status { get; set; }
 
-        public bool IsValid()
+        public string? IsValid()
         {
             var context = new ValidationContext(this, serviceProvider: null, items: null);
             var results = new List<ValidationResult>();
 
             bool isValid = Validator.TryValidateObject(this, context, results, validateAllProperties: true);
 
-            return isValid;
+            return isValid ? null : results.First().ErrorMessage;
         }
     }
 }

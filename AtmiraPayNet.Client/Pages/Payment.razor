@@ -19,6 +19,18 @@
 
 <link rel="stylesheet" href="css/payment.css" />
 
+<script>
+    function downloadPdf(pdfBase64, fileName) {
+        var link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + pdfBase64;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
 <div class="page">
 
     <div class="payments-container">
@@ -235,7 +247,7 @@
                 }
                 else
                 {
-                    if (editMode)
+                    @if (editMode)
                     {
                         <div>
                             <a class="text-btn" href="payments">Volver al visor de pagos</a>
@@ -285,18 +297,19 @@
 
         createMode = id == Guid.Empty;
 
-        countryList = countriesService.GetCountryList();
+        countryList = await countriesService.GetCountryList();
 
         if (!createMode)
         {
             payment = await paymentService.GetPaymentById(id);
-            title = "Actualizar pago";
             if (payment.Status == Status.Draft)
             {
+                title = "Actualizar pago";
                 editMode = true;
             }
             else
             {
+                title = "Visualizar pago";
                 editMode = false;
             }
 
@@ -383,17 +396,19 @@
     {
         payment.Status = status;
 
-        if (!payment.IsValid())
+        string? errorMessage = payment.IsValid();
+
+        if (errorMessage != null)
         {
             await Swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "Algo salió mal",
-                Text = "Por favor, revisa los datos e inténtalo de nuevo",
-                Icon = SweetAlertIcon.Warning,
-                ShowConfirmButton = false
-            });
+                {
+                    Title = "Algo salió mal",
+                    Text = errorMessage,
+                    Icon = SweetAlertIcon.Warning,
+                    ShowConfirmButton = false
+                });
 
-            // TODO: Pintar los errores en rojo en los campos (ValidationAttributes)
+            StateHasChanged();
 
             return;
         }
@@ -404,11 +419,25 @@
         {
             if (status == Status.Draft)
             {
-                NavigationManager.NavigateTo("payments");
+                await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "Borrador guardado correctamente",
+                        Icon = SweetAlertIcon.Success,
+                        ShowConfirmButton = false
+                    });
             }
             else
             {
+                createMode = false;
                 editMode = false;
+                StateHasChanged();
+
+                await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "Transacción cerrada correctamente",
+                        Icon = SweetAlertIcon.Success,
+                        ShowConfirmButton = false
+                    });
             }
         }
         else
@@ -422,6 +451,7 @@
                 });
         }
     }
+
 
     private async Task DownloadPDF(Guid id)
     {
