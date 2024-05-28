@@ -1,0 +1,39 @@
+﻿<Window x:Class="AtmiraPayNet.RPA.Windows.Payments"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AtmiraPayNet.RPA.Windows"
+        mc:Ignorable="d"
+        Title="Payments" Height="450" Width="800">
+    <Grid>
+        <DataGrid x:Name="paymentsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding SimplePayments}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Source Bank" Binding="{Binding SourceBank}" />
+                <DataGridTextColumn Header="Destination Bank" Binding="{Binding DestinationBank}" />
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" />
+                <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
+
+                <!-- Botón de edición para pagos en estado "Borrador" --><!--
+                <DataGridTemplateColumn Header="Edit" Visibility="{Binding SimplePayments, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter='Draft'}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Edit" Click="EditButton_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                --><!-- Botón de descarga para pagos en estado "Generado" --><!--
+                <DataGridTemplateColumn Header="Download" Visibility="{Binding SimplePayments, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter='Generated'}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Download" Click="DownloadButton_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>-->
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</Window>

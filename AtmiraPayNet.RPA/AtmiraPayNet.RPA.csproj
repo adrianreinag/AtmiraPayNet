@@ -1,39 +1,59 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
+		<UseWindowsForms>false</UseWindowsForms>
+		<UseConsoleApp>false</UseConsoleApp>
+		<UseClassLib>false</UseClassLib>
+		<EnableDefaultPageItems>false</EnableDefaultPageItems>
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-		<PackageReference Include="Selenium.Support" Version="4.21.0" />
-		<PackageReference Include="Selenium.WebDriver" Version="4.21.0" />
+	  <PackageReference Include="Selenium.Support" Version="4.21.0" />
+	  <PackageReference Include="Selenium.WebDriver" Version="4.21.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Properties\Settings.Designer.cs">
-			<DesignTimeSharedInput>True</DesignTimeSharedInput>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Settings.settings</DependentUpon>
+		<Page Include="Windows\MainWindow.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Windows\Access.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Windows\Payments.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Windows\Payment.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Windows\MainWindow.xaml.cs">
+			<DependentUpon>Windows\MainWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Windows\Access.xaml.cs">
+			<DependentUpon>Windows\Access.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Windows\Payments.xaml.cs">
+			<DependentUpon>Windows\Payments.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Windows\Payment.xaml.cs">
+			<DependentUpon>Windows\Payment.xaml</DependentUpon>
 		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Properties\Settings.settings">
-			<Generator>SettingsSingleFileGenerator</Generator>
-			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		<None Update="App.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Page Include="Access.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
 	</ItemGroup>
 
 </Project>
