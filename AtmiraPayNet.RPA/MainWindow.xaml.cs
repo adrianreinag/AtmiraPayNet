@@ -1,12 +1,13 @@
-﻿using OpenQA.Selenium.Chrome;
+﻿using AtmiraPayNet.RPA.Windows;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System.Windows;
 
-
-namespace AtmiraPayNet.RPA.Windows
+namespace AtmiraPayNet.RPA
 {
     public partial class MainWindow : Window
     {
-        private static ChromeDriver _driver;
+        private static ChromeDriver? _driver;
 
         public MainWindow()
         {

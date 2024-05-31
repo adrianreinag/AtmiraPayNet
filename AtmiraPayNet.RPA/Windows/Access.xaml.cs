@@ -2,6 +2,7 @@
 using AtmiraPayNet.RPA.Pages;
 using OpenQA.Selenium.Chrome;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace AtmiraPayNet.RPA.Windows
 {
@@ -28,7 +29,7 @@ namespace AtmiraPayNet.RPA.Windows
                 Password = PasswordBox.Password
             };
 
-            ErrorMessageTextBlock.Text = loginModel.getErrorMessage();
+            ErrorMessageTextBlock.Text = loginModel.GetErrorMessage();
             if (ErrorMessageTextBlock.Text != string.Empty)
             {
                 return;
@@ -39,8 +40,8 @@ namespace AtmiraPayNet.RPA.Windows
                 Properties.Settings.Default.UserName = loginModel.UserName;
                 Properties.Settings.Default.Save();
 
-                Payments payments = new(_driver);
-                payments.Show();
+                var paymentsWindow = new Payments(_driver);
+                paymentsWindow.Show();
                 Hide();
             }
             else

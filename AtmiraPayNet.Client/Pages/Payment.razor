@@ -49,19 +49,19 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.SourceIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
+                                <InputIBAN id="SourceIBAN" @bind-Value="payment.SourceIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
                                 <ValidationMessage For="@(() => payment.SourceIBAN)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Nombre del banco</label>
-                                <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.SourceBankName"></InputText>
+                                <InputText id="SourceBankName" class="form-control" readonly="@(!editMode)" @bind-Value="payment.SourceBankName"></InputText>
                                 <ValidationMessage For="@(() => payment.SourceBankName)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="@(e => CountrySelected(e, "source"))" disabled="@(!editMode)">
+                                <select id="SourceBankCountry" class="form-control" @onchange="@(e => CountrySelected(e, "source"))" disabled="@(!editMode)">
                                     @if (createMode)
                                     {
                                         @if (payment.SourceBankCountry == null)
@@ -88,7 +88,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Divisa</label>
-                                <InputText class="form-control" readonly @bind-Value="sourceCurrency"></InputText>
+                                <InputText id="SourceCurrency" class="form-control" readonly @bind-Value="sourceCurrency"></InputText>
                             </div>
                         </div>
                     </div>
@@ -104,19 +104,19 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.DestinationIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
+                                <InputIBAN id="DestinationIBAN" @bind-Value="payment.DestinationIBAN" EditMode="@editMode" OnChange="SetIntermediaryDisabled" />
                                 <ValidationMessage For="@(() => payment.DestinationIBAN)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Nombre del banco</label>
-                                <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.DestinationBankName"></InputText>
+                                <InputText id="DestinationBankName" class="form-control" readonly="@(!editMode)" @bind-Value="payment.DestinationBankName"></InputText>
                                 <ValidationMessage For="@(() => payment.DestinationBankName)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="@(e => CountrySelected(e, "destination"))" disabled="@(!editMode)">
+                                <select id="DestinationBankCountry" class="form-control" @onchange="@(e => CountrySelected(e, "destination"))" disabled="@(!editMode)">
                                     @if (createMode)
                                     {
                                         <option value="" disabled selected>Selecciona una opción</option>
@@ -135,7 +135,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Divisa</label>
-                                <InputText class="form-control" readonly @bind-Value="destinationCurrency"></InputText>
+                                <InputText id="DestinationCurrency" class="form-control" readonly @bind-Value="destinationCurrency"></InputText>
                             </div>
                         </div>
                     </div>
@@ -149,19 +149,19 @@
 
                             <div class="mb-3">
                                 <label class="form-label">IBAN</label>
-                                <InputIBAN @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" />
+                                <InputIBAN id="IntermediaryIBAN" @bind-Value="payment.IntermediaryIBAN" EditMode="@(editMode && !intermediaryDisabled)" />
                                 <ValidationMessage For="@(() => payment.IntermediaryIBAN)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Nombre del banco</label>
-                                <InputText class="form-control" readonly="@(!editMode || intermediaryDisabled)" @bind-Value="payment.IntermediaryBankName"></InputText>
+                                <InputText id="IntermediaryBankName" class="form-control" readonly="@(!editMode || intermediaryDisabled)" @bind-Value="payment.IntermediaryBankName"></InputText>
                                 <ValidationMessage For="@(() => payment.IntermediaryBankName)"></ValidationMessage>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Pais del banco</label>
-                                <select class="form-control" @onchange="@(e => CountrySelected(e, "intermediary"))" disabled="@(!editMode || intermediaryDisabled)">
+                                <select id="IntermediaryBankCountry" class="form-control" @onchange="@(e => CountrySelected(e, "intermediary"))" disabled="@(!editMode || intermediaryDisabled)">
                                     @if (createMode)
                                     {
                                         <option value="" disabled selected>Selecciona una opción</option>
@@ -181,7 +181,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Divisa</label>
-                                <InputText class="form-control" readonly @bind-Value="intermediaryCurrency"></InputText>
+                                <InputText id="IntermediaryCurrency" class="form-control" readonly @bind-Value="intermediaryCurrency"></InputText>
                             </div>
                         </div>
                     </div>
@@ -200,31 +200,31 @@
 
                         <div class="mb-3 col-3">
                             <label class="form-label">Calle</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.Street"></InputText>
+                            <InputText id="Street" class="form-control" readonly="@(!editMode)" @bind-Value="payment.Street"></InputText>
                             <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
                         </div>
 
                         <div class="mb-3 col-1">
                             <label class="form-label">Número</label>
-                            <InputNumber class="form-control" readonly="@(!editMode)" @bind-Value="payment.Number"></InputNumber>
+                            <InputNumber id="Number" class="form-control" readonly="@(!editMode)" @bind-Value="payment.Number"></InputNumber>
                             <ValidationMessage For="@(() => payment.Number)"></ValidationMessage>
                         </div>
 
                         <div class="mb-3 col-3">
                             <label class="form-label">Ciudad</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.City"></InputText>
+                            <InputText id="City" class="form-control" readonly="@(!editMode)" @bind-Value="payment.City"></InputText>
                             <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
                         </div>
 
                         <div class="mb-3 col-3">
                             <label class="form-label">Pais</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.Country"></InputText>
+                            <InputText id="Country" class="form-control" readonly="@(!editMode)" @bind-Value="payment.Country"></InputText>
                             <ValidationMessage For="@(() => payment.Street)"></ValidationMessage>
                         </div>
 
                         <div class="mb-3 col-2">
                             <label class="form-label">Código postal</label>
-                            <InputText class="form-control" readonly="@(!editMode)" @bind-Value="payment.PostalCode"></InputText>
+                            <InputText id="PostalCode" class="form-control" readonly="@(!editMode)" @bind-Value="payment.PostalCode"></InputText>
                             <ValidationMessage For="@(() => payment.PostalCode)"></ValidationMessage>
                         </div>
                     </div>
@@ -233,7 +233,7 @@
             <div class="mx-2 d-flex justify-content-between align-items-end">
                 <div class="mb-3 p-0">
                     <label class="form-label">Cantidad</label>
-                    <InputNumber class="form-control" readonly="@(!editMode)" @bind-Value="payment.Amount"></InputNumber>
+                    <InputNumber id="Amount" class="form-control" readonly="@(!editMode)" @bind-Value="payment.Amount"></InputNumber>
                     <ValidationMessage For="@(() => payment.Amount)"></ValidationMessage>
                 </div>
 
@@ -241,8 +241,8 @@
                 {
                     <div>
                         <a class="text-btn" href="payments">Volver al visor de pagos</a>
-                        <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
-                        <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
+                        <button id="GeneratePaymentButton" class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
+                        <button id="SavePaymentButton" class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
                     </div>
                 }
                 else
@@ -251,8 +251,8 @@
                     {
                         <div>
                             <a class="text-btn" href="payments">Volver al visor de pagos</a>
-                            <button class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
-                            <button class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
+                            <button id="GeneratePaymentButton" class="btn btn-create" @onclick="(() => OnValidSubmit(Status.Generated))">Cerrar transacción</button>
+                            <button id="SavePaymentButton" class="btn btn-secondary ms-2" @onclick="(() => OnValidSubmit(Status.Draft))">Borrador</button>
                         </div>
                     }
                     else

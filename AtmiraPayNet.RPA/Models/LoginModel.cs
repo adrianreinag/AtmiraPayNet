@@ -4,8 +4,8 @@
     {
         public required string UserName { get; set; }
         public required string Password { get; set; }
-    
-        public string getErrorMessage()
+
+        public string GetErrorMessage()
         {
             if (string.IsNullOrWhiteSpace(UserName))
             {

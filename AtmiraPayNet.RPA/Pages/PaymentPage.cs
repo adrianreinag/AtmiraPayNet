@@ -1,34 +1,33 @@
 ﻿using AtmiraPayNet.RPA.Models;
 using AtmiraPayNet.RPA.Utils;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using System.Threading;
-using System;
+using SeleniumExtras.WaitHelpers;
 
 namespace AtmiraPayNet.RPA.Pages
 {
     internal class PaymentPage(IWebDriver driver)
     {
-        private readonly IWebDriver driver = driver;
+        private readonly IWebDriver _driver = driver;
 
-        IWebElement SourceIBAN => driver.FindElement(By.Id("SourceIBAN"));
-        IWebElement SourceBankName => driver.FindElement(By.Id("SourceBankName"));
-        IWebElement SourceBankCountry => driver.FindElement(By.Id("SourceBankCountry"));
-        IWebElement PostalCode => driver.FindElement(By.Id("PostalCode"));
-        IWebElement Street => driver.FindElement(By.Id("Street"));
-        IWebElement Number => driver.FindElement(By.Id("Number"));
-        IWebElement City => driver.FindElement(By.Id("City"));
-        IWebElement Country => driver.FindElement(By.Id("Country"));
-        IWebElement Amount => driver.FindElement(By.Id("Amount"));
-        IWebElement DestinationIBAN => driver.FindElement(By.Id("DestinationIBAN"));
-        IWebElement DestinationBankName => driver.FindElement(By.Id("DestinationBankName"));
-        IWebElement DestinationBankCountry => driver.FindElement(By.Id("DestinationBankCountry"));
-        IWebElement IntermediaryIBAN => driver.FindElement(By.Id("IntermediaryIBAN"));
-        IWebElement IntermediaryBankName => driver.FindElement(By.Id("IntermediaryBankName"));
-        IWebElement IntermediaryBankCountry => driver.FindElement(By.Id("IntermediaryBankCountry"));
-        IWebElement BtnGeneratePayment => driver.FindElement(By.Id("GeneratePaymentButton"));
-        IWebElement BtnSavePayment => driver.FindElement(By.Id("SavePaymentButton"));
+        IWebElement SourceIBAN => _driver.FindElement(By.Id("SourceIBAN"));
+        IWebElement SourceBankName => _driver.FindElement(By.Id("SourceBankName"));
+        IWebElement SourceBankCountry => _driver.FindElement(By.Id("SourceBankCountry"));
+        IWebElement PostalCode => _driver.FindElement(By.Id("PostalCode"));
+        IWebElement Street => _driver.FindElement(By.Id("Street"));
+        IWebElement Number => _driver.FindElement(By.Id("Number"));
+        IWebElement City => _driver.FindElement(By.Id("City"));
+        IWebElement Country => _driver.FindElement(By.Id("Country"));
+        IWebElement Amount => _driver.FindElement(By.Id("Amount"));
+        IWebElement DestinationIBAN => _driver.FindElement(By.Id("DestinationIBAN"));
+        IWebElement DestinationBankName => _driver.FindElement(By.Id("DestinationBankName"));
+        IWebElement DestinationBankCountry => _driver.FindElement(By.Id("DestinationBankCountry"));
+        IWebElement IntermediaryIBAN => _driver.FindElement(By.Id("IntermediaryIBAN"));
+        IWebElement IntermediaryBankName => _driver.FindElement(By.Id("IntermediaryBankName"));
+        IWebElement IntermediaryBankCountry => _driver.FindElement(By.Id("IntermediaryBankCountry"));
+        IWebElement BtnGeneratePayment => _driver.FindElement(By.Id("GeneratePaymentButton"));
+        IWebElement BtnSavePayment => _driver.FindElement(By.Id("SavePaymentButton"));
+
 
         public PaymentModel GetPayment()
         {
@@ -54,21 +53,59 @@ namespace AtmiraPayNet.RPA.Pages
 
         public void CreateUpdatePayment(PaymentModel paymentModel, Status status)
         {
+            SourceIBAN.Clear();
             SourceIBAN.SendKeys(paymentModel.SourceIBAN);
+
+            SourceBankName.Clear();
             SourceBankName.SendKeys(paymentModel.SourceBankName);
+
+            SourceBankCountry.Clear();
             SourceBankCountry.SendKeys(paymentModel.SourceBankCountry);
+
+            PostalCode.Clear();
             PostalCode.SendKeys(paymentModel.PostalCode);
+
+            Street.Clear();
             Street.SendKeys(paymentModel.Street);
+
+            Number.Clear();
             Number.SendKeys(paymentModel.Number.ToString());
+
+            City.Clear();
             City.SendKeys(paymentModel.City);
+
+            Country.Clear();
             Country.SendKeys(paymentModel.Country);
+
+            Amount.Clear();
             Amount.SendKeys(paymentModel.Amount.ToString());
+
+            DestinationIBAN.Clear();
             DestinationIBAN.SendKeys(paymentModel.DestinationIBAN);
+
+            DestinationBankName.Clear();
             DestinationBankName.SendKeys(paymentModel.DestinationBankName);
+
+            DestinationBankCountry.Clear();
             DestinationBankCountry.SendKeys(paymentModel.DestinationBankCountry);
-            IntermediaryIBAN.SendKeys(paymentModel.IntermediaryIBAN);
-            IntermediaryBankName.SendKeys(paymentModel.IntermediaryBankName);
-            IntermediaryBankCountry.SendKeys(paymentModel.IntermediaryBankCountry);
+
+            if (IntermediaryIBAN.Enabled)
+            {
+                IntermediaryIBAN.Clear();
+                IntermediaryIBAN.SendKeys(paymentModel.IntermediaryIBAN);
+            }
+
+            if (IntermediaryBankName.Enabled)
+            {
+                IntermediaryBankName.Clear();
+                IntermediaryBankName.SendKeys(paymentModel.IntermediaryBankName);
+            }
+
+            if (IntermediaryBankCountry.Enabled)
+            {
+                IntermediaryBankCountry.Clear();
+                IntermediaryBankCountry.SendKeys(paymentModel.IntermediaryBankCountry);
+            }
 
             if (status == Status.Generated)
             {
@@ -80,75 +117,23 @@ namespace AtmiraPayNet.RPA.Pages
             }
         }
 
-        public void OpenPayment()
+
+        public List<string> GetCountries()
         {
-            driver.Navigate().GoToUrl("https://localhost:7038/payment");
+            List<string> countries = [];
+
+            WebDriverWait wait = new(_driver, TimeSpan.FromSeconds(20));
+
+            IWebElement sourceCountry = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("SourceBankCountry")));
+
+            SelectElement select = new(sourceCountry);
+
+            foreach (IWebElement option in select.Options)
+            {
+                countries.Add(option.Text);
+            }
+
+            return countries;
         }
-
-        //public List<string> GetCountries()
-        //{
-        //private void Get_Countries()
-        //{
-        //    ChromeDriver driver = new();
-
-        //    try
-        //    {
-        //        driver.Navigate().GoToUrl("https://localhost:7038/login");
-
-        //        WebDriverWait loadingWait = new(driver, TimeSpan.FromSeconds(20));
-        //        if (!loadingWait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("loading"))))
-        //        {
-        //            return;
-        //        }
-
-        //        WebDriverWait wait = new(driver, TimeSpan.FromSeconds(20));
-
-        //        string userName = Properties.Settings.Default.UserName;
-        //        string password = Properties.Settings.Default.Password;
-
-        //        IWebElement txtUserName = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("UserName")));
-        //        txtUserName.SendKeys(userName);
-
-        //        IWebElement txtPassword = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("Password")));
-        //        txtPassword.SendKeys(password);
-
-        //        IWebElement btnLogin = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("LoginButton")));
-        //        btnLogin.Click();
-
-
-        //        while (driver.Url.Contains("login"))
-        //        {
-        //            try
-        //            {
-        //                if (driver.FindElement(By.ClassName("swal2-container")).Displayed)
-        //                {
-        //                    return;
-        //                }
-        //            }
-        //            catch (NoSuchElementException)
-        //            {
-        //                Thread.Sleep(200);
-        //            }
-        //        }
-
-        //        driver.Navigate().GoToUrl("https://localhost:7038/payment");
-
-        //        loadingWait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("loading")));
-
-        //        IWebElement sourceCountry = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("SourceCountry")));
-
-        //        SelectElement select = new(sourceCountry);
-
-        //        foreach (IWebElement option in select.Options)
-        //        {
-        //            Countries.Add(option.Text);
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        driver.Quit();
-        //    }
-        //}
-        //}
     }
 }

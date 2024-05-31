@@ -1,12 +1,7 @@
 ﻿using AtmiraPayNet.RPA.Models;
 using AtmiraPayNet.RPA.Pages;
 using AtmiraPayNet.RPA.Utils;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Windows;
 
 namespace AtmiraPayNet.RPA.Windows
@@ -14,30 +9,25 @@ namespace AtmiraPayNet.RPA.Windows
     public partial class Payment : Window
     {
         public List<string> Countries = [];
-        private PaymentModel paymentModel { get; set; }
-        private readonly LoginPage loginPage;
-        private readonly PaymentPage paymentPage;
+        private readonly ChromeDriver _driver;
+        private readonly PaymentPage _paymentPage;
 
-        public Payment()
+        public Payment(ChromeDriver driver)
         {
             InitializeComponent();
 
-            loginPage = new(new ChromeDriver());
-
-            loginPage.Login(new LoginModel
-            {
-                UserName = Properties.Settings.Default.UserName,
-                Password = Properties.Settings.Default.Password
-            });
-
-            paymentPage = new(new ChromeDriver());
-            paymentPage.OpenPayment();
-
-            FillForm(paymentPage.GetPayment());
+            _driver = driver;
+            _paymentPage = new(_driver);
 
             DataContext = this;
-            UserNameTextBlock.Text = Properties.Settings.Default.UserName;
-            //Get_Countries();
+
+            Countries = _paymentPage.GetCountries();
+
+            SourceBankCountry.ItemsSource = Countries;
+            DestinationBankCountry.ItemsSource = Countries;
+            IntermediaryBankCountry.ItemsSource = Countries;
+
+            FillForm(_paymentPage.GetPayment());
         }
 
         private void FillForm(PaymentModel paymentModel)
@@ -61,7 +51,7 @@ namespace AtmiraPayNet.RPA.Windows
 
         private void GeneratePayment_Click(object sender, RoutedEventArgs e)
         {
-            paymentPage.CreateUpdatePayment(new PaymentModel
+            _paymentPage.CreateUpdatePayment(new PaymentModel
             {
                 SourceIBAN = SourceIBAN.Text,
                 SourceBankName = SourceBankName.Text,
@@ -86,7 +76,7 @@ namespace AtmiraPayNet.RPA.Windows
 
         private void SavePayment_Click(object sender, RoutedEventArgs e)
         {
-            paymentPage.CreateUpdatePayment(new PaymentModel
+            _paymentPage.CreateUpdatePayment(new PaymentModel
             {
                 SourceIBAN = SourceIBAN.Text,
                 SourceBankName = SourceBankName.Text,
@@ -112,7 +102,6 @@ namespace AtmiraPayNet.RPA.Windows
         {
             SourceIBAN.Clear();
             SourceBankName.Clear();
-            SourceBankCountry.Items.Clear();
             PostalCode.Clear();
             Street.Clear();
             Number.Clear();
@@ -121,10 +110,12 @@ namespace AtmiraPayNet.RPA.Windows
             Amount.Clear();
             DestinationIBAN.Clear();
             DestinationBankName.Clear();
-            DestinationBankCountry.Items.Clear();
             IntermediaryIBAN.Clear();
             IntermediaryBankName.Clear();
-            IntermediaryBankCountry.Items.Clear();
+
+            SourceBankCountry.SelectedItem = null;
+            DestinationBankCountry.SelectedItem = null;
+            IntermediaryBankCountry.SelectedItem = null;
 
             MessageBox.Show("Formulario limpiado.");
         }

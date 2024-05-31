@@ -7,33 +7,24 @@
         mc:Ignorable="d"
         Title="Payments" Height="450" Width="800">
     <Grid>
-        <DataGrid x:Name="paymentsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding SimplePayments}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Source Bank" Binding="{Binding SourceBank}" />
-                <DataGridTextColumn Header="Destination Bank" Binding="{Binding DestinationBank}" />
-                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" />
-                <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" />
-                <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
-
-                <!-- Botón de edición para pagos en estado "Borrador" --><!--
-                <DataGridTemplateColumn Header="Edit" Visibility="{Binding SimplePayments, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter='Draft'}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="Edit" Click="EditButton_Click"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                --><!-- Botón de descarga para pagos en estado "Generado" --><!--
-                <DataGridTemplateColumn Header="Download" Visibility="{Binding SimplePayments, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter='Generated'}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="Download" Click="DownloadButton_Click"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>-->
-            </DataGrid.Columns>
-        </DataGrid>
-
+        <StackPanel>
+            <Button Content="Crear Pago" Width="100" Height="30" Margin="10" Click="CreatePayment_Click" />
+            <DataGrid x:Name="paymentsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding SimplePayments}" Margin="10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Banco de origen" Binding="{Binding SourceBank}" />
+                    <DataGridTextColumn Header="Banco de destino" Binding="{Binding DestinationBank}" />
+                    <DataGridTextColumn Header="Cantidad" Binding="{Binding Amount}" />
+                    <DataGridTextColumn Header="Divisa" Binding="{Binding Currency}" />
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Status}" />
+                    <DataGridTemplateColumn Header="Acción">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding TextBtn}" Click="Button_Click" CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
     </Grid>
 </Window>

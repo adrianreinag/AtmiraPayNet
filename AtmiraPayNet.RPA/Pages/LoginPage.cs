@@ -16,6 +16,8 @@ namespace AtmiraPayNet.RPA.Pages
         IWebElement TxtUserName => _driver.FindElement(By.Id("UserName"));
         IWebElement TxtPassword => _driver.FindElement(By.Id("Password"));
         IWebElement BtnLogin => _driver.FindElement(By.Id("LoginButton"));
+        IWebElement SweetAlert => _driver.FindElement(By.ClassName("swal2-container"));
+        IWebElement ExitSweetAlert => _driver.FindElement(By.XPath("/html/body/div[3]"));
 
         public bool Login(LoginModel loginModel)
         {
@@ -27,8 +29,11 @@ namespace AtmiraPayNet.RPA.Pages
             {
                 try
                 {
-                    if (_driver.FindElement(By.ClassName("swal2-container")).Displayed)
+                    if (SweetAlert.Displayed)
                     {
+                        ExitSweetAlert.Click();
+                        TxtUserName.Clear();
+                        TxtPassword.Clear();
                         return false;
                     }
                 }
