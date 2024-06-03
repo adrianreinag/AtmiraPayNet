@@ -17,7 +17,15 @@ namespace AtmiraPayNet.RPA
 
         private static void InitializeWebDriver()
         {
-            _driver = new ChromeDriver();
+            var options = new ChromeOptions();
+            var downloadDirectory = @"C:\Users\adrian.reinagalv\Downloads";
+
+            options.AddUserProfilePreference("download.default_directory", downloadDirectory);
+            options.AddUserProfilePreference("download.prompt_for_download", false);
+            options.AddUserProfilePreference("download.directory_upgrade", true);
+            options.AddUserProfilePreference("safebrowsing.enabled", true);
+
+            _driver = new ChromeDriver(options);
         }
 
         private static void PerformWebAutomation()

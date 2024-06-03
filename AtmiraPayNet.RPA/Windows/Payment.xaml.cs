@@ -114,9 +114,12 @@ namespace AtmiraPayNet.RPA.Windows
             if (ValidateForm(_paymentPage.GetValidationMessages()))
             {
                 MessageBox.Show("Pago generado.");
+                _driver.Navigate().GoToUrl("https://localhost:7038/payments");
+                Close();
             }
             else
             {
+                _paymentPage.CloseAlert();
                 MessageBox.Show("Por favor, rellene correctamente los campos.");
             }
         }
@@ -148,9 +151,12 @@ namespace AtmiraPayNet.RPA.Windows
             if (ValidateForm(_paymentPage.GetValidationMessages()))
             {
                 MessageBox.Show("Pago guardado.");
+                _driver.Navigate().GoToUrl("https://localhost:7038/payments");
+                Close();
             }
             else
             {
+                _paymentPage.CloseAlert();
                 MessageBox.Show("Por favor, rellene correctamente los campos.");
             }
         }

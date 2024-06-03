@@ -17,7 +17,7 @@ namespace AtmiraPayNet.RPA.Pages
         IWebElement TxtPassword => _driver.FindElement(By.Id("Password"));
         IWebElement BtnLogin => _driver.FindElement(By.Id("LoginButton"));
         IWebElement SweetAlert => _driver.FindElement(By.ClassName("swal2-container"));
-        IWebElement ExitSweetAlert => _driver.FindElement(By.XPath("/html/body/div[3]"));
+        IWebElement ExitSweetAlert => _driver.FindElement(By.ClassName("swal2-close"));
 
         public bool Login(LoginModel loginModel)
         {

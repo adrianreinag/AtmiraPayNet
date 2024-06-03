@@ -26,6 +26,7 @@ namespace AtmiraPayNet.RPA.Pages
         IWebElement IntermediaryBankCountry => _driver.FindElement(By.Id("IntermediaryBankCountry"));
         IWebElement BtnGeneratePayment => _driver.FindElement(By.Id("GeneratePaymentButton"));
         IWebElement BtnSavePayment => _driver.FindElement(By.Id("SavePaymentButton"));
+        IWebElement ExitSweetAlert => _driver.FindElement(By.ClassName("swal2-close"));
 
         IWebElement? FindValidationMessage(string id)
         {
@@ -157,6 +158,11 @@ namespace AtmiraPayNet.RPA.Pages
             catch (Exception)
             {
             }
+        }
+
+        public void CloseAlert()
+        {
+            ExitSweetAlert.Click();
         }
 
         public List<string> GetCountries()

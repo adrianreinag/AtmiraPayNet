@@ -4,6 +4,8 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,12 +15,15 @@ namespace AtmiraPayNet.RPA.Windows
     {
         private readonly ChromeDriver _driver;
         private List<SimplePaymentModel> _simplePayments = [];
+        private FileSystemWatcher? _watcher;
+        private readonly string _downloadDirectory = @"C:\Users\adrian.reinagalv\Downloads";
+
 
         public Payments(ChromeDriver driver)
         {
             InitializeComponent();
-
             _driver = driver;
+            SetupFileWatcher();
             LoadPayments();
         }
 
@@ -26,6 +31,49 @@ namespace AtmiraPayNet.RPA.Windows
         {
             ScrapeTable();
             paymentsDataGrid.DataContext = this;
+        }
+
+        private void SetupFileWatcher()
+        {
+            _watcher = new FileSystemWatcher
+            {
+                Path = _downloadDirectory,
+                Filter = "*.pdf",
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size
+            };
+            _watcher.Created += OnPdfDownloaded;
+            _watcher.EnableRaisingEvents = true;
+        }
+
+        private async void OnPdfDownloaded(object sender, FileSystemEventArgs e)
+        {
+            await Task.Delay(5000); // Esperar para asegurar que la descarga ha terminado
+
+            if (IsFileReady(e.FullPath))
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (MessageBox.Show("El PDF se ha descargado correctamente. ¿Quieres abrirlo?", "Descarga completada", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo(e.FullPath) { UseShellExecute = true });
+                    }
+                });
+            }
+        }
+
+        private static bool IsFileReady(string fileName)
+        {
+            try
+            {
+                using (FileStream inputStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    return inputStream.Length > 0;
+                }
+            }
+            catch (IOException)
+            {
+                return false;
+            }
         }
 
         public void ScrapeTable()
@@ -93,7 +141,7 @@ namespace AtmiraPayNet.RPA.Windows
             paymentWindow.Show();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.CommandParameter is SimplePaymentModel payment)
             {
@@ -105,6 +153,32 @@ namespace AtmiraPayNet.RPA.Windows
                     {
                         var paymentWindow = new Payment(_driver);
                         paymentWindow.Show();
+                    }
+                    else
+                    {
+                        var downloadTask = Task.Run(() =>
+                        {
+                            _watcher!.EnableRaisingEvents = true;
+                            Task.Delay(5000).Wait();
+                        });
+
+                        await downloadTask;
+
+                        var downloadedFiles = Directory.GetFiles(_downloadDirectory, "*.pdf");
+                        if (downloadedFiles.Length > 0)
+                        {
+                            var latestFile = new FileInfo(downloadedFiles.OrderByDescending(f => new FileInfo(f).CreationTime).First());
+                            if (IsFileReady(latestFile.FullName))
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    if (MessageBox.Show("El PDF se ha descargado correctamente. ¿Quieres abrirlo?", "Descarga completada", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                    {
+                                        Process.Start(new ProcessStartInfo(latestFile.FullName) { UseShellExecute = true });
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

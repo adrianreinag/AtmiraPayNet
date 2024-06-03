@@ -405,7 +405,8 @@
                     Title = "Algo salió mal",
                     Text = errorMessage,
                     Icon = SweetAlertIcon.Warning,
-                    ShowConfirmButton = false
+                    ShowConfirmButton = false,
+                    ShowCloseButton = true
                 });
 
             StateHasChanged();
@@ -423,7 +424,8 @@
                     {
                         Title = "Borrador guardado correctamente",
                         Icon = SweetAlertIcon.Success,
-                        ShowConfirmButton = false
+                        ShowConfirmButton = false,
+                        ShowCloseButton = true
                     });
             }
             else
@@ -436,7 +438,8 @@
                     {
                         Title = "Transacción cerrada correctamente",
                         Icon = SweetAlertIcon.Success,
-                        ShowConfirmButton = false
+                        ShowConfirmButton = false,
+                        ShowCloseButton = true
                     });
             }
         }

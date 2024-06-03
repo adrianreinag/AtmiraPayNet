@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Pago" Height="450" Width="1000" MinHeight="450" MinWidth="1000">
+        Title="Pago" Height="500" Width="1000" MinHeight="500" MinWidth="1000">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -84,23 +84,23 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="Calle" Grid.Column="0" VerticalAlignment="Top"/>
                 <TextBox x:Name="Street" Grid.Column="0" Margin="0,26,10,0" Height="18"/>
-                <TextBlock x:Name="ValidationMessageStreet" Foreground="Red" Grid.Column="0" Margin="0,44,10,0" Visibility="Visible"/>
+                <TextBlock x:Name="ValidationMessageStreet" Foreground="Red" Grid.Column="0" Margin="0,64,10,0" Visibility="Visible"/>
 
                 <Label Content="Número" Grid.Column="1" VerticalAlignment="Top"/>
                 <TextBox x:Name="Number" Grid.Column="1" Margin="0,26,10,0" Height="18"/>
-                <TextBlock x:Name="ValidationMessageNumber" Foreground="Red" Grid.Column="1" Margin="0,44,10,0" Visibility="Visible"/>
+                <TextBlock x:Name="ValidationMessageNumber" Foreground="Red" Grid.Column="1" Margin="0,64,10,0" Visibility="Visible"/>
 
                 <Label Content="Ciudad" Grid.Column="2" VerticalAlignment="Top"/>
                 <TextBox x:Name="City" Grid.Column="2" Margin="0,26,10,0" Height="18"/>
-                <TextBlock x:Name="ValidationMessageCity" Foreground="Red" Grid.Column="2" Margin="0,44,10,0" Visibility="Visible"/>
+                <TextBlock x:Name="ValidationMessageCity" Foreground="Red" Grid.Column="2" Margin="0,64,10,0" Visibility="Visible"/>
 
                 <Label Content="País" Grid.Column="3" VerticalAlignment="Top"/>
                 <TextBox x:Name="Country" Grid.Column="3" Margin="0,26,10,0" Height="18"/>
-                <TextBlock x:Name="ValidationMessageCountry" Foreground="Red" Grid.Column="3" Margin="0,44,10,0" Visibility="Visible"/>
+                <TextBlock x:Name="ValidationMessageCountry" Foreground="Red" Grid.Column="3" Margin="0,64,10,0" Visibility="Visible"/>
 
                 <Label Content="Código postal" Grid.Column="4" VerticalAlignment="Top"/>
                 <TextBox x:Name="PostalCode" Grid.Column="4" Margin="0,26,0,0" Height="18"/>
-                <TextBlock x:Name="ValidationMessagePostalCode" Foreground="Red" Grid.Column="4" Margin="0,44,0,0" Visibility="Visible"/>
+                <TextBlock x:Name="ValidationMessagePostalCode" Foreground="Red" Grid.Column="4" Margin="0,64,0,0" Visibility="Visible"/>
             </Grid>
         </GroupBox>
 
