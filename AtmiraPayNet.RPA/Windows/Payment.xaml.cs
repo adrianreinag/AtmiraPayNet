@@ -114,7 +114,6 @@ namespace AtmiraPayNet.RPA.Windows
             if (ValidateForm(_paymentPage.GetValidationMessages()))
             {
                 MessageBox.Show("Pago generado.");
-                _driver.Navigate().GoToUrl("https://localhost:7038/payments");
                 Close();
             }
             else
@@ -151,7 +150,6 @@ namespace AtmiraPayNet.RPA.Windows
             if (ValidateForm(_paymentPage.GetValidationMessages()))
             {
                 MessageBox.Show("Pago guardado.");
-                _driver.Navigate().GoToUrl("https://localhost:7038/payments");
                 Close();
             }
             else
@@ -181,6 +179,12 @@ namespace AtmiraPayNet.RPA.Windows
             IntermediaryBankCountry.SelectedItem = null;
 
             MessageBox.Show("Formulario limpiado.");
+        }
+
+        private void Payment_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var newPaymentsWindow = new Payments(_driver);
+            newPaymentsWindow.Show();
         }
     }
 }

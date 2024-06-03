@@ -135,6 +135,8 @@ namespace AtmiraPayNet.RPA.Windows
 
         private void CreatePayment_Click(object sender, RoutedEventArgs e)
         {
+            Close();
+
             _driver.Navigate().GoToUrl("https://localhost:7038/payment");
 
             var paymentWindow = new Payment(_driver);
@@ -151,8 +153,11 @@ namespace AtmiraPayNet.RPA.Windows
 
                     if (payment.Status == Status.Draft)
                     {
+                        Thread.Sleep(1000);
                         var paymentWindow = new Payment(_driver);
                         paymentWindow.Show();
+
+                        Close();
                     }
                     else
                     {
