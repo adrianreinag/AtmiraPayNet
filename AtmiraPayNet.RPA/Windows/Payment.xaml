@@ -26,10 +26,15 @@
             <StackPanel Margin="10">
                 <Label Content="IBAN"/>
                 <TextBox x:Name="SourceIBAN" AutomationProperties.IsRequiredForForm="True" Height="18"/>
+                <TextBlock x:Name="ValidationMessageSourceIBAN" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="Nombre del banco"/>
                 <TextBox x:Name="SourceBankName" AutomationProperties.IsRequiredForForm="True" Height="18"/>
+                <TextBlock x:Name="ValidationMessageSourceBankName" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="País del banco"/>
                 <ComboBox x:Name="SourceBankCountry" ItemsSource="{Binding Countries}" AutomationProperties.IsRequiredForForm="True"/>
+                <TextBlock x:Name="ValidationMessageSourceBankCountry" Foreground="Red" Visibility="Visible"/>
             </StackPanel>
         </GroupBox>
 
@@ -38,11 +43,15 @@
             <StackPanel Margin="10">
                 <Label Content="IBAN"/>
                 <TextBox x:Name="DestinationIBAN" AutomationProperties.IsRequiredForForm="True" Height="18"/>
+                <TextBlock x:Name="ValidationMessageDestinationIBAN" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="Nombre del banco"/>
                 <TextBox x:Name="DestinationBankName" AutomationProperties.IsRequiredForForm="True" Height="18"/>
+                <TextBlock x:Name="ValidationMessageDestinationBankName" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="País del banco"/>
                 <ComboBox x:Name="DestinationBankCountry" ItemsSource="{Binding Countries}" AutomationProperties.IsRequiredForForm="True"/>
-
+                <TextBlock x:Name="ValidationMessageDestinationBankCountry" Foreground="Red" Visibility="Visible"/>
             </StackPanel>
         </GroupBox>
 
@@ -51,10 +60,15 @@
             <StackPanel Margin="10">
                 <Label Content="IBAN"/>
                 <TextBox x:Name="IntermediaryIBAN" Height="18"/>
+                <TextBlock x:Name="ValidationMessageIntermediaryIBAN" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="Nombre del banco"/>
                 <TextBox x:Name="IntermediaryBankName" Height="18"/>
+                <TextBlock x:Name="ValidationMessageIntermediaryBankName" Foreground="Red" Visibility="Visible"/>
+
                 <Label Content="País del banco"/>
                 <ComboBox x:Name="IntermediaryBankCountry" ItemsSource="{Binding Countries}" AutomationProperties.IsRequiredForForm="True"/>
+                <TextBlock x:Name="ValidationMessageIntermediaryBankCountry" Foreground="Red" Visibility="Visible"/>
             </StackPanel>
         </GroupBox>
 
@@ -70,14 +84,23 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="Calle" Grid.Column="0" VerticalAlignment="Top"/>
                 <TextBox x:Name="Street" Grid.Column="0" Margin="0,26,10,0" Height="18"/>
+                <TextBlock x:Name="ValidationMessageStreet" Foreground="Red" Grid.Column="0" Margin="0,44,10,0" Visibility="Visible"/>
+
                 <Label Content="Número" Grid.Column="1" VerticalAlignment="Top"/>
                 <TextBox x:Name="Number" Grid.Column="1" Margin="0,26,10,0" Height="18"/>
+                <TextBlock x:Name="ValidationMessageNumber" Foreground="Red" Grid.Column="1" Margin="0,44,10,0" Visibility="Visible"/>
+
                 <Label Content="Ciudad" Grid.Column="2" VerticalAlignment="Top"/>
                 <TextBox x:Name="City" Grid.Column="2" Margin="0,26,10,0" Height="18"/>
+                <TextBlock x:Name="ValidationMessageCity" Foreground="Red" Grid.Column="2" Margin="0,44,10,0" Visibility="Visible"/>
+
                 <Label Content="País" Grid.Column="3" VerticalAlignment="Top"/>
                 <TextBox x:Name="Country" Grid.Column="3" Margin="0,26,10,0" Height="18"/>
+                <TextBlock x:Name="ValidationMessageCountry" Foreground="Red" Grid.Column="3" Margin="0,44,10,0" Visibility="Visible"/>
+
                 <Label Content="Código postal" Grid.Column="4" VerticalAlignment="Top"/>
                 <TextBox x:Name="PostalCode" Grid.Column="4" Margin="0,26,0,0" Height="18"/>
+                <TextBlock x:Name="ValidationMessagePostalCode" Foreground="Red" Grid.Column="4" Margin="0,44,0,0" Visibility="Visible"/>
             </Grid>
         </GroupBox>
 
@@ -85,6 +108,7 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="3" Grid.ColumnSpan="3" Margin="5">
             <Label Content="Cantidad"/>
             <TextBox x:Name="Amount" Width="100" Margin="10,0,10,0"/>
+            <TextBlock x:Name="ValidationMessageAmount" Foreground="Red" Visibility="Visible"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
                 <Button Content="Cerrar transacción" Click="GeneratePayment_Click" Margin="0,0,5,0"/>

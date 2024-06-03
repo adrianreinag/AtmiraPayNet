@@ -1,5 +1,4 @@
 ﻿using AtmiraPayNet.RPA.Models;
-using AtmiraPayNet.RPA.Utils;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
@@ -28,6 +27,17 @@ namespace AtmiraPayNet.RPA.Pages
         IWebElement BtnGeneratePayment => _driver.FindElement(By.Id("GeneratePaymentButton"));
         IWebElement BtnSavePayment => _driver.FindElement(By.Id("SavePaymentButton"));
 
+        IWebElement? FindValidationMessage(string id)
+        {
+            try
+            {
+                return _driver.FindElement(By.Id(id));
+            }
+            catch (NoSuchElementException)
+            {
+                return null;
+            }
+        }
 
         public PaymentModel GetPayment()
         {
@@ -51,72 +61,103 @@ namespace AtmiraPayNet.RPA.Pages
             };
         }
 
-        public void CreateUpdatePayment(PaymentModel paymentModel, Status status)
+        public ValidationMessagesPaymentModel GetValidationMessages()
         {
-            SourceIBAN.Clear();
-            SourceIBAN.SendKeys(paymentModel.SourceIBAN);
-
-            SourceBankName.Clear();
-            SourceBankName.SendKeys(paymentModel.SourceBankName);
-
-            SourceBankCountry.Clear();
-            SourceBankCountry.SendKeys(paymentModel.SourceBankCountry);
-
-            PostalCode.Clear();
-            PostalCode.SendKeys(paymentModel.PostalCode);
-
-            Street.Clear();
-            Street.SendKeys(paymentModel.Street);
-
-            Number.Clear();
-            Number.SendKeys(paymentModel.Number.ToString());
-
-            City.Clear();
-            City.SendKeys(paymentModel.City);
-
-            Country.Clear();
-            Country.SendKeys(paymentModel.Country);
-
-            Amount.Clear();
-            Amount.SendKeys(paymentModel.Amount.ToString());
-
-            DestinationIBAN.Clear();
-            DestinationIBAN.SendKeys(paymentModel.DestinationIBAN);
-
-            DestinationBankName.Clear();
-            DestinationBankName.SendKeys(paymentModel.DestinationBankName);
-
-            DestinationBankCountry.Clear();
-            DestinationBankCountry.SendKeys(paymentModel.DestinationBankCountry);
-
-            if (IntermediaryIBAN.Enabled)
+            return new ValidationMessagesPaymentModel
             {
-                IntermediaryIBAN.Clear();
-                IntermediaryIBAN.SendKeys(paymentModel.IntermediaryIBAN);
-            }
+                ValidationMessageSourceIBAN = FindValidationMessage("ValidationMessageSourceIBAN")?.Text,
+                ValidationMessageSourceBankName = FindValidationMessage("ValidationMessageSourceBankName")?.Text,
+                ValidationMessageSourceBankCountry = FindValidationMessage("ValidationMessageSourceBankCountry")?.Text,
+                ValidationMessagePostalCode = FindValidationMessage("ValidationMessagePostalCode")?.Text,
+                ValidationMessageStreet = FindValidationMessage("ValidationMessageStreet")?.Text,
+                ValidationMessageNumber = FindValidationMessage("ValidationMessageNumber")?.Text,
+                ValidationMessageCity = FindValidationMessage("ValidationMessageCity")?.Text,
+                ValidationMessageCountry = FindValidationMessage("ValidationMessageCountry")?.Text,
+                ValidationMessageAmount = FindValidationMessage("ValidationMessageAmount")?.Text,
+                ValidationMessageDestinationIBAN = FindValidationMessage("ValidationMessageDestinationIBAN")?.Text,
+                ValidationMessageDestinationBankName = FindValidationMessage("ValidationMessageDestinationBankName")?.Text,
+                ValidationMessageDestinationBankCountry = FindValidationMessage("ValidationMessageDestinationBankCountry")?.Text,
+                ValidationMessageIntermediaryIBAN = FindValidationMessage("ValidationMessageIntermediaryIBAN")?.Text,
+                ValidationMessageIntermediaryBankName = FindValidationMessage("ValidationMessageIntermediaryBankName")?.Text,
+                ValidationMessageIntermediaryBankCountry = FindValidationMessage("ValidationMessageIntermediaryBankCountry")?.Text
+            };
+        }
 
-            if (IntermediaryBankName.Enabled)
-            {
-                IntermediaryBankName.Clear();
-                IntermediaryBankName.SendKeys(paymentModel.IntermediaryBankName);
-            }
+        public void SetPayment(PaymentModel paymentModel)
+        {
+            FillTextField(SourceIBAN, paymentModel.SourceIBAN);
+            FillTextField(SourceBankName, paymentModel.SourceBankName);
+            SelectComboBox(SourceBankCountry, paymentModel.SourceBankCountry);
 
-            if (IntermediaryBankCountry.Enabled)
-            {
-                IntermediaryBankCountry.Clear();
-                IntermediaryBankCountry.SendKeys(paymentModel.IntermediaryBankCountry);
-            }
+            FillTextField(PostalCode, paymentModel.PostalCode);
+            FillTextField(Street, paymentModel.Street);
+            FillTextField(Number, paymentModel.Number.ToString());
+            FillTextField(City, paymentModel.City);
+            FillTextField(Country, paymentModel.Country);
+            FillTextField(Amount, paymentModel.Amount.ToString());
 
-            if (status == Status.Generated)
+            FillTextField(DestinationIBAN, paymentModel.DestinationIBAN);
+            FillTextField(DestinationBankName, paymentModel.DestinationBankName);
+            SelectComboBox(DestinationBankCountry, paymentModel.DestinationBankCountry);
+
+            TryFillTextField(IntermediaryIBAN, paymentModel.IntermediaryIBAN);
+            TryFillTextField(IntermediaryBankName, paymentModel.IntermediaryBankName);
+            TrySelectComboBox(IntermediaryBankCountry, paymentModel.IntermediaryBankCountry);
+
+            IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
+            js.ExecuteScript("arguments[0].scrollIntoView(true);", BtnSavePayment);
+
+            Thread.Sleep(500);
+        }
+
+        public void GeneratePayment()
+        {
+            BtnGeneratePayment.Click();
+        }
+
+        public void SavePayment()
+        {
+            BtnSavePayment.Click();
+        }
+
+        private static void FillTextField(IWebElement element, string value)
+        {
+            element.Clear();
+            element.SendKeys(value);
+        }
+
+        private static void SelectComboBox(IWebElement comboBoxElement, string value)
+        {
+            if (!string.IsNullOrEmpty(value))
             {
-                BtnGeneratePayment.Click();
-            }
-            else
-            {
-                BtnSavePayment.Click();
+                SelectElement select = new(comboBoxElement);
+                select.SelectByText(value);
             }
         }
 
+        private static void TryFillTextField(IWebElement element, string? value)
+        {
+            try
+            {
+                element.Clear();
+                element.SendKeys(value);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private static void TrySelectComboBox(IWebElement comboBoxElement, string? value)
+        {
+            try
+            {
+                SelectElement select = new(comboBoxElement);
+                select.SelectByText(value);
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         public List<string> GetCountries()
         {
@@ -125,6 +166,8 @@ namespace AtmiraPayNet.RPA.Pages
             WebDriverWait wait = new(_driver, TimeSpan.FromSeconds(20));
 
             IWebElement sourceCountry = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("SourceBankCountry")));
+
+            Thread.Sleep(500); // TODO: Modificar
 
             SelectElement select = new(sourceCountry);
 

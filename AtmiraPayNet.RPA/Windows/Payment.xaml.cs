@@ -49,9 +49,48 @@ namespace AtmiraPayNet.RPA.Windows
             IntermediaryBankCountry.Text = paymentModel.IntermediaryBankCountry;
         }
 
+        private bool ValidateForm(ValidationMessagesPaymentModel validationMessagesPaymentModel)
+        {
+            ValidationMessageSourceIBAN.Text = validationMessagesPaymentModel.ValidationMessageSourceIBAN;
+            ValidationMessageSourceBankName.Text = validationMessagesPaymentModel.ValidationMessageSourceBankName;
+            ValidationMessageSourceBankCountry.Text = validationMessagesPaymentModel.ValidationMessageSourceBankCountry;
+            ValidationMessagePostalCode.Text = validationMessagesPaymentModel.ValidationMessagePostalCode;
+            ValidationMessageStreet.Text = validationMessagesPaymentModel.ValidationMessageStreet;
+            ValidationMessageNumber.Text = validationMessagesPaymentModel.ValidationMessageNumber;
+            ValidationMessageCity.Text = validationMessagesPaymentModel.ValidationMessageCity;
+            ValidationMessageCountry.Text = validationMessagesPaymentModel.ValidationMessageCountry;
+            ValidationMessageAmount.Text = validationMessagesPaymentModel.ValidationMessageAmount;
+            ValidationMessageDestinationIBAN.Text = validationMessagesPaymentModel.ValidationMessageDestinationIBAN;
+            ValidationMessageDestinationBankName.Text = validationMessagesPaymentModel.ValidationMessageDestinationBankName;
+            ValidationMessageDestinationBankCountry.Text = validationMessagesPaymentModel.ValidationMessageDestinationBankCountry;
+            ValidationMessageIntermediaryIBAN.Text = validationMessagesPaymentModel.ValidationMessageIntermediaryIBAN;
+            ValidationMessageIntermediaryBankName.Text = validationMessagesPaymentModel.ValidationMessageIntermediaryBankName;
+            ValidationMessageIntermediaryBankCountry.Text = validationMessagesPaymentModel.ValidationMessageIntermediaryBankCountry;
+
+            // Set visibility based on the validation messages
+            ValidationMessageSourceIBAN.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageSourceIBAN) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageSourceBankName.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageSourceBankName) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageSourceBankCountry.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageSourceBankCountry) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessagePostalCode.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessagePostalCode) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageStreet.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageStreet) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageNumber.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageNumber) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageCity.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageCity) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageCountry.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageCountry) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageAmount.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageAmount) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageDestinationIBAN.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageDestinationIBAN) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageDestinationBankName.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageDestinationBankName) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageDestinationBankCountry.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageDestinationBankCountry) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageIntermediaryIBAN.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageIntermediaryIBAN) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageIntermediaryBankName.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageIntermediaryBankName) ? Visibility.Collapsed : Visibility.Visible;
+            ValidationMessageIntermediaryBankCountry.Visibility = string.IsNullOrEmpty(validationMessagesPaymentModel.ValidationMessageIntermediaryBankCountry) ? Visibility.Collapsed : Visibility.Visible;
+
+            return validationMessagesPaymentModel.IsOkey();
+        }
+
+
         private void GeneratePayment_Click(object sender, RoutedEventArgs e)
         {
-            _paymentPage.CreateUpdatePayment(new PaymentModel
+            _paymentPage.SetPayment(new PaymentModel
             {
                 SourceIBAN = SourceIBAN.Text,
                 SourceBankName = SourceBankName.Text,
@@ -68,15 +107,24 @@ namespace AtmiraPayNet.RPA.Windows
                 IntermediaryIBAN = IntermediaryIBAN.Text,
                 IntermediaryBankName = IntermediaryBankName.Text,
                 IntermediaryBankCountry = IntermediaryBankCountry.Text
-            }, Status.Generated);
+            });
 
-            MessageBox.Show("Pago generado.");
+            _paymentPage.GeneratePayment();
+
+            if (ValidateForm(_paymentPage.GetValidationMessages()))
+            {
+                MessageBox.Show("Pago generado.");
+            }
+            else
+            {
+                MessageBox.Show("Por favor, rellene correctamente los campos.");
+            }
         }
 
 
         private void SavePayment_Click(object sender, RoutedEventArgs e)
         {
-            _paymentPage.CreateUpdatePayment(new PaymentModel
+            _paymentPage.SetPayment(new PaymentModel
             {
                 SourceIBAN = SourceIBAN.Text,
                 SourceBankName = SourceBankName.Text,
@@ -93,9 +141,18 @@ namespace AtmiraPayNet.RPA.Windows
                 IntermediaryIBAN = IntermediaryIBAN.Text,
                 IntermediaryBankName = IntermediaryBankName.Text,
                 IntermediaryBankCountry = IntermediaryBankCountry.Text
-            }, Status.Draft);
+            });
 
-            MessageBox.Show("Pago guardado como borrador.");
+            _paymentPage.SavePayment();
+
+            if (ValidateForm(_paymentPage.GetValidationMessages()))
+            {
+                MessageBox.Show("Pago guardado.");
+            }
+            else
+            {
+                MessageBox.Show("Por favor, rellene correctamente los campos.");
+            }
         }
 
         private void Reset_Click(object sender, RoutedEventArgs e)
